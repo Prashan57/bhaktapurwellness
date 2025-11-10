@@ -1,26 +1,89 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --primary: 169 98% 16%;
+  --primary-foreground: 0 0% 100%;
+  --border: 0 0% 85%;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 93%;
+  --primary: 158 64% 52%;
+  --primary-foreground: 165 84% 16%;
+  --border: 0 0% 25%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-200;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl sm:text-5xl md:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl sm:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  p {
+    @apply leading-relaxed text-foreground/90;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Component styles */
+@layer components {
+  .container {
+    @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl w-full;
+  }
+  
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-medium transform transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none hover:scale-105 active:scale-95 hover:shadow-md;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90 focus-visible:ring-primary/50;
+  }
+  
+  .btn-outline {
+    @apply border border-foreground/20 hover:bg-foreground/5 focus-visible:ring-foreground/20;
+  }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/80 rounded-full hover:bg-primary/60 transition-colors;
+}
+
+/* Selection styles */
+::selection {
+  @apply bg-primary text-white;
+}
+
+
