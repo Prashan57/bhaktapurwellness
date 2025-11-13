@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
+import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/Navbar";
+import type { ReactNode } from "react";
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (

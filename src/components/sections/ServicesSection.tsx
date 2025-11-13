@@ -1,12 +1,20 @@
-import { InView } from '@/components/motion/InView';
+import { InView } from "@/components/motion/InView";
+import CardFlipSection from "./CardFlipSection";
 
 export function ServicesSection() {
   return (
     <section id="services" className="py-16 bg-foreground/5 scroll-mt-28">
       <div className="container mx-auto px-4">
         <InView>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Our Services</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Our Services
+          </h2>
         </InView>
+        {/* Card flip subsection placed under the services heading */}
+        <div>
+          <CardFlipSection />
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((item, i) => (
             <InView key={item} delay={i * 100}>
@@ -29,7 +37,8 @@ export function ServicesSection() {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Service {item}</h3>
                 <p className="text-foreground/70">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                 </p>
               </div>
             </InView>
