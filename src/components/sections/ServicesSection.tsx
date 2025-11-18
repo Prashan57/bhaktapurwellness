@@ -1,5 +1,6 @@
 import { InView } from "@/components/motion/InView";
 import CardFlipSection from "./CardFlipSection";
+import { MatterportSection } from "./MatterportSection";
 
 export function ServicesSection() {
   return (
@@ -15,7 +16,11 @@ export function ServicesSection() {
           <CardFlipSection />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="mt-16">
+          <MatterportSection />
+        </div>
+
+        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((item, i) => (
             <InView key={item} delay={i * 100}>
               <div className="group bg-background rounded-xl p-6 shadow-sm hover:shadow-md transition-all border border-border/20 transform hover:-translate-y-1">
