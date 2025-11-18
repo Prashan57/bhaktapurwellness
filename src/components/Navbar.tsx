@@ -3,7 +3,7 @@
 import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 const navLinks = [
   { name: "Home", href: "#home", description: "Start your journey" },
@@ -29,6 +29,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [activeId, setActiveId] = useState<string>("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
+  const [isPointerActive, setIsPointerActive] = useState(false);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -97,210 +99,264 @@ export function Navbar() {
     [closeMenu]
   );
 
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      const bounds = event.currentTarget.getBoundingClientRect();
+      setPointerPosition({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+      if (!isPointerActive) setIsPointerActive(true);
+    },
+    [isPointerActive]
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    setIsPointerActive(false);
+  }, []);
+
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-background/90 backdrop-blur-lg shadow-[0_12px_30px_-18px_rgba(15,23,42,0.35)] border-b border-border/40"
-          : "bg-transparent border-b border-transparent"
-      }`}
-    >
-      <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-          aria-label="WindSurf homepage"
+    <header className="fixed top-0 left-0 right-0 z-[60] pt-4 flex justify-center px-2 sm:px-4">
+      <div className="relative w-[98%] max-w-6xl">
+        <div
+          className={`pointer-events-none absolute inset-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            scrolled ? "opacity-100" : "opacity-90"
+          }`}
         >
-          <div className="h-11 w-11 rounded-full overflow-hidden relative bg-background/30 shadow-elevated">
-            <Image
-              src="/images/gallery/bw.jpg"
-              alt="WindSurf logo (temporary)"
-              fill
-              sizes="40px"
-              className="object-cover"
-              priority={true}
+          <div className="absolute inset-0 rounded-2xl bg-white/5 shadow-elevated" />
+          <div className="absolute inset-0 rounded-2xl border border-white/15 backdrop-blur-sm" />
+          <div className="absolute inset-0 rounded-2xl bg-white/[0.02]" />
+        </div>
+
+        <nav className="relative w-full">
+          <div
+            className="relative flex w-full items-center justify-between gap-4 sm:gap-6 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-sm shadow-elevated text-white/80 px-4 sm:px-7 py-3 sm:py-4 overflow-hidden"
+            onPointerMove={handlePointerMove}
+            onPointerEnter={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          >
+            <div
+              className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
+                isPointerActive ? "opacity-80" : "opacity-0"
+              }`}
+              style={{
+                background: `radial-gradient(220px circle at ${pointerPosition.x}px ${pointerPosition.y}px, hsl(var(--primary)/0.35), transparent 70%)`,
+              }}
             />
-          </div>
-          <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-sm uppercase tracking-[0.3em] text-foreground/50">
-              Bhaktapur
-            </span>
-            <span className="text-lg font-semibold text-foreground">
-              Wellness
-            </span>
-          </div>
-          <span className="sr-only">WindSurf</span>
-        </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-9">
-          <div className="flex items-center gap-6">
-            {navLinks.map((link) => {
-              const isActive = activeId === link.href.replace("#", "");
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`group relative text-sm font-medium transition-colors tracking-wide ${
-                    isActive
-                      ? "text-primary"
-                      : "text-foreground/70 hover:text-primary"
-                  }`}
-                >
-                  {link.name}
-                  <span
-                    className={`absolute left-0 -bottom-1 h-0.5 rounded-full bg-primary transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
-                  />
-                </Link>
-              );
-            })}
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-foreground/5 transition-colors"
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            >
-              {theme === "dark" ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-4 6a1 1 0 100 2h.01a1 1 0 100-2H10zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm13-1a1 1 0 01-1-1v-.01a1 1 0 10-2 0V9a1 1 0 012 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
-            </button>
-            <a href="#contact" className="btn btn-primary px-5 py-2 text-sm">
-              Book a Visit
-            </a>
-          </div>
-        </div>
-
-        <div className="md:hidden flex items-center gap-2">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-foreground/5 transition-colors"
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          >
-            {theme === "dark" ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-4 6a1 1 0 100 2h.01a1 1 0 100-2H10zM4 11a1 1 0 100-2H3a1 1 0 000 2h1zm13-1a1 1 0 01-1-1v-.01a1 1 0 10-2 0V9a1 1 0 012 0z"
-                  clipRule="evenodd"
+            <Link href="/" className="flex items-center gap-3" aria-label="WindSurf homepage">
+              <div className="h-11 w-11 rounded-full overflow-hidden relative bg-background/30 shadow-elevated">
+                <Image
+                  src="/images/gallery/bw.jpg"
+                  alt="WindSurf logo (temporary)"
+                  fill
+                  sizes="40px"
+                  className="object-cover"
+                  priority
                 />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            )}
-          </button>
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-2 rounded-full hover:bg-foreground/5 transition-colors"
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            aria-label="Toggle navigation menu"
-          >
-            {menuOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              >
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-7 w-7"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              >
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </nav>
+              </div>
+              <div className="hidden sm:flex flex-col leading-tight">
+                <span className="text-[0.7rem] uppercase tracking-[0.45em] text-foreground/100 font-semibold">
+                  Bhaktapur
+                </span>
+                <span className="text-xl font-semibold tracking-[0.08em] bg-gradient-to-r from-primary/90 via-secondary/80 to-primary/70 bg-clip-text text-transparent">
+                  Wellness
+                </span>
+              </div>
+              <span className="sr-only">WindSurf</span>
+            </Link>
 
-      {/* Mobile Menu */}
-      {menuOpen ? (
-        <div className="md:hidden" id="mobile-menu">
-          <div className="fixed inset-0 z-40 bg-foreground/60 backdrop-blur-sm" onClick={closeMenu} />
-          <div className="absolute top-full left-0 right-0 z-50 px-4 pb-6">
-            <div className="rounded-3xl bg-background/95 border border-border/40 shadow-elevated-strong overflow-hidden animate-menu-pop">
-              <div className="p-6 flex flex-col gap-4">
+            <div className="hidden md:flex items-center gap-9">
+              <div className="flex items-center gap-6">
                 {navLinks.map((link) => {
                   const isActive = activeId === link.href.replace("#", "");
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
-                      onClick={handleNavClick(link.href)}
-                      className={`flex flex-col rounded-2xl border border-transparent px-4 py-3 transition-all ${
-                        isActive
-                          ? "bg-primary/10 border-primary/30 text-primary"
-                          : "hover:bg-foreground/5 text-foreground"
+                      className={`group relative text-sm font-medium transition-colors tracking-wide ${
+                        isActive ? "text-primary" : "text-foreground/70 hover:text-primary"
                       }`}
                     >
-                      <span className="text-base font-semibold">{link.name}</span>
-                      <span className="text-sm text-foreground/60">
-                        {link.description}
-                      </span>
+                      {link.name}
+                      <span
+                        className={`absolute left-0 -bottom-1 h-0.5 rounded-full bg-primary transition-all duration-300 ${
+                          isActive ? "w-full" : "w-0 group-hover:w-full"
+                        }`}
+                      />
                     </Link>
                   );
                 })}
               </div>
-              <div className="px-6 pb-6">
-                <a
-                  href="#contact"
-                  onClick={handleNavClick("#contact")}
-                  className="btn btn-primary w-full"
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
+                  aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
                 >
-                  Reserve a Consultation
+                  {theme === "dark" ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M12 3.25c-1.158 0-1.737 0-2.207.181a3 3 0 00-1.362 1.055c-.272.39-.41.892-.685 1.897l-.177.648c-.196.717-.294 1.076-.304 1.415a3 3 0 001.963 2.94c.315.117.687.117 1.431.117 1.318 0 1.977 0 2.538-.185a3 3 0 001.897-1.896c.185-.561.185-1.22.185-2.538 0-.744 0-1.116-.117-1.431a3 3 0 00-2.94-1.963c-.339.01-.698.108-1.415.304l-.648.177c-1.005.275-1.506.413-1.897.685a3 3 0 00-1.055 1.362c-.181.47-.181 1.049-.181 2.207 0 1.894 0 2.84.37 3.563a4.5 4.5 0 003.955 2.462c1.12 0 2.02-.392 3.82-1.177 1.8-.784 2.7-1.177 3.21-1.86a4.5 4.5 0 00.694-3.956c-.21-.803-.757-1.71-1.849-3.523C15.983 4.074 15.59 3.174 14.807 2.47a4.5 4.5 0 00-2.807-1.03z" fill="currentColor" opacity="0.85" />
+                      <path
+                        d="M8.5 17.75l.75-.75M6 14.5l1-.25M15.5 18.5l-.25-1M18.25 15.5l-.75-.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity="0.55"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                    >
+                      <circle cx="12" cy="12" r="4.25" fill="currentColor" opacity="0.2" />
+                      <circle cx="12" cy="12" r="4.25" />
+                      <path
+                        d="M12 3.25v1.5M12 19.25v1.5M4.75 12h1.5M17.75 12h1.5M6.404 6.404l1.06 1.06M16.536 16.536l1.06 1.06M6.404 17.596l1.06-1.06M16.536 7.464l1.06-1.06"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </button>
+                <a href="#contact" className="btn btn-primary px-5 py-2 text-sm">
+                  Book a Visit
                 </a>
               </div>
             </div>
+
+            <div className="flex items-center gap-3 md:hidden">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M12 3.25c-1.158 0-1.737 0-2.207.181a3 3 0 00-1.362 1.055c-.272.39-.41.892-.685 1.897l-.177.648c-.196.717-.294 1.076-.304 1.415a3 3 0 001.963 2.94c.315.117.687.117 1.431.117 1.318 0 1.977 0 2.538-.185a3 3 0 001.897-1.896c.185-.561.185-1.22.185-2.538 0-.744 0-1.116-.117-1.431a3 3 0 00-2.94-1.963c-.339.01-.698.108-1.415.304l-.648.177c-1.005.275-1.506.413-1.897.685a3 3 0 00-1.055 1.362c-.181.47-.181 1.049-.181 2.207 0 1.894 0 2.84.37 3.563a4.5 4.5 0 003.955 2.462c1.12 0 2.02-.392 3.82-1.177 1.8-.784 2.7-1.177 3.21-1.86a4.5 4.5 0 00.694-3.956c-.21-.803-.757-1.71-1.849-3.523C15.983 4.074 15.59 3.174 14.807 2.47a4.5 4.5 0 00-2.807-1.03z" fill="currentColor" opacity="0.85" />
+                    <path
+                      d="M8.5 17.75l.75-.75M6 14.5l1-.25M15.5 18.5l-.25-1M18.25 15.5l-.75-.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity="0.55"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                  >
+                    <circle cx="12" cy="12" r="4.25" fill="currentColor" opacity="0.2" />
+                    <circle cx="12" cy="12" r="4.25" />
+                    <path
+                      d="M12 3.25v1.5M12 19.25v1.5M4.75 12h1.5M17.75 12h1.5M6.404 6.404l1.06 1.06M16.536 16.536l1.06 1.06M6.404 17.596l1.06-1.06M16.536 7.464l1.06-1.06"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
+              </button>
+              <a href="#contact" className="btn btn-primary px-4 py-2 text-sm">
+                Book a Visit
+              </a>
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
+                aria-label="Toggle navigation menu"
+              >
+                {menuOpen ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  >
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-7 w-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  >
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
-        </div>
-      ) : null}
+        </nav>
+
+        {menuOpen ? (
+          <div className="md:hidden" id="mobile-menu">
+            <div className="fixed inset-0 z-40 bg-foreground/60 backdrop-blur-sm" onClick={closeMenu} />
+            <div className="absolute top-full left-0 right-0 z-50 px-4 pb-6">
+              <div className="rounded-3xl border border-white/15 bg-gradient-to-br from-background/92 via-background/80 to-background/60 backdrop-blur-2xl shadow-[0_24px_80px_-32px_rgba(15,23,42,0.55)] overflow-hidden animate-menu-pop">
+                <div className="p-6 flex flex-col gap-4">
+                  {navLinks.map((link) => {
+                    const isActive = activeId === link.href.replace("#", "");
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={handleNavClick(link.href)}
+                        className={`flex flex-col rounded-2xl border border-transparent px-4 py-3 transition-all ${
+                          isActive
+                            ? "bg-primary/10 border-primary/30 text-primary"
+                            : "hover:bg-foreground/5 text-foreground"
+                        }`}
+                      >
+                        <span className="text-base font-semibold">{link.name}</span>
+                        <span className="text-sm text-foreground/60">
+                          {link.description}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+                <div className="px-6 pb-6">
+                  <a
+                    href="#contact"
+                    onClick={handleNavClick("#contact")}
+                    className="btn btn-primary w-full"
+                  >
+                    Reserve a Consultation
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
     </header>
   );
 }
