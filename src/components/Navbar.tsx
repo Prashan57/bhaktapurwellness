@@ -318,10 +318,26 @@ export function Navbar() {
 
         {menuOpen ? (
           <div className="md:hidden" id="mobile-menu">
-            <div className="fixed inset-0 z-40 bg-foreground/60 backdrop-blur-sm" onClick={closeMenu} />
-            <div className="absolute top-full left-0 right-0 z-50 px-4 pb-6">
-              <div className="rounded-3xl border border-white/15 bg-gradient-to-br from-background/92 via-background/80 to-background/60 backdrop-blur-2xl shadow-[0_24px_80px_-32px_rgba(15,23,42,0.55)] overflow-hidden animate-menu-pop">
-                <div className="p-6 flex flex-col gap-4">
+            <div
+              className="fixed inset-0 z-40 bg-slate-900/45 dark:bg-slate-950/70 backdrop-blur-xl transition-opacity"
+              onClick={closeMenu}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10">
+              <div className="relative w-full max-w-lg overflow-hidden rounded-[28px] border border-white/18 dark:border-white/12 bg-white/10 dark:bg-white/5 backdrop-blur-[18px] shadow-elevated animate-menu-pop">
+                <div className="pointer-events-none absolute inset-x-8 top-0 h-[220px] bg-gradient-to-b from-white/25 via-primary/10 to-transparent blur-2xl" />
+                <div className="relative p-6 flex flex-col items-center gap-5 text-center text-slate-800 dark:text-white/80">
+                  <div className="flex w-full max-w-md flex-col items-center gap-1 px-2">
+                    <span className="text-[0.65rem] uppercase tracking-[0.45em] text-slate-500 dark:text-white/50">
+                      Menu
+                    </span>
+                    <h3 className="text-lg font-semibold tracking-[0.08em] text-slate-800 dark:text-white">
+                      Bhaktapur Wellness
+                    </h3>
+                    <div className="mt-3 flex w-full items-center gap-3">
+                      <span className="h-[1.25px] flex-1 rounded-full bg-gradient-to-r from-transparent via-primary/60 to-primary/30 dark:via-primary/45 dark:to-primary/25 shadow-[0_0_18px_rgba(56,189,248,0.45)]" />
+                      <span className="h-[1.25px] flex-1 rounded-full bg-gradient-to-l from-transparent via-primary/60 to-primary/30 dark:via-primary/45 dark:to-primary/25 shadow-[0_0_18px_rgba(56,189,248,0.45)]" />
+                    </div>
+                  </div>
                   {navLinks.map((link) => {
                     const isActive = activeId === link.href.replace("#", "");
                     return (
@@ -329,25 +345,25 @@ export function Navbar() {
                         key={link.href}
                         href={link.href}
                         onClick={handleNavClick(link.href)}
-                        className={`flex flex-col rounded-2xl border border-transparent px-4 py-3 transition-all ${
+                        className={`flex w-full max-w-md flex-col items-center rounded-2xl border px-4 py-3 text-center transition-all backdrop-blur-sm ${
                           isActive
-                            ? "bg-primary/10 border-primary/30 text-primary"
-                            : "hover:bg-foreground/5 text-foreground"
+                            ? "bg-primary/15 border-primary/40 text-primary shadow-[0_18px_40px_-24px_rgba(56,189,248,0.55)]"
+                            : "border-white/25 text-slate-700 hover:text-slate-900 bg-white/30 hover:bg-white/45 dark:border-white/12 dark:text-white/75 dark:hover:text-white dark:bg-white/5 dark:hover:bg-white/8 hover:shadow-[0_22px_45px_-28px_rgba(15,23,42,0.55)]"
                         }`}
                       >
                         <span className="text-base font-semibold">{link.name}</span>
-                        <span className="text-sm text-foreground/60">
+                        <span className="text-sm text-slate-500 dark:text-white/60">
                           {link.description}
                         </span>
                       </Link>
                     );
                   })}
                 </div>
-                <div className="px-6 pb-6">
+                <div className="relative flex w-full justify-center px-6 pb-6 pt-2">
                   <a
                     href="#contact"
                     onClick={handleNavClick("#contact")}
-                    className="btn btn-primary w-full"
+                    className="btn btn-primary w-full max-w-md text-center shadow-[0_20px_45px_-20px_rgba(56,189,248,0.65)]"
                   >
                     Reserve a Consultation
                   </a>
