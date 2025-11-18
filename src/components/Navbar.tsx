@@ -322,8 +322,11 @@ export function Navbar() {
               className="fixed inset-0 z-40 bg-slate-900/45 dark:bg-slate-950/70 backdrop-blur-xl transition-opacity"
               onClick={closeMenu}
             />
-            <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10">
-              <div className="relative w-full max-w-lg overflow-hidden rounded-[28px] border border-white/18 dark:border-white/12 bg-white/10 dark:bg-white/5 backdrop-blur-[18px] shadow-elevated animate-menu-pop">
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10" onClick={closeMenu}>
+              <div
+                className="relative w-full max-w-lg overflow-hidden rounded-[28px] border border-white/18 dark:border-white/12 bg-white/10 dark:bg-white/5 backdrop-blur-[18px] shadow-elevated animate-menu-pop"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <div className="pointer-events-none absolute inset-x-8 top-0 h-[220px] bg-gradient-to-b from-white/25 via-primary/10 to-transparent blur-2xl" />
                 <div className="relative p-6 flex flex-col items-center gap-5 text-center text-slate-800 dark:text-white/80">
                   <div className="flex w-full max-w-md flex-col items-center gap-1 px-2">
