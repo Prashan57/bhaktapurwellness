@@ -7,70 +7,103 @@ type Theme = 'light' | 'dark';
 type ThemeContextType = {
   theme: Theme;
   toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Helper function to safely get the initial theme
-const getInitialTheme = (): Theme => {
+const getSystemTheme = (): Theme => {
   if (typeof window === 'undefined') return 'light';
-  
-  const savedTheme = localStorage.getItem('theme') as Theme | null;
-  if (savedTheme) return savedTheme;
-  
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'light';
+  
+  const savedTheme = localStorage.getItem('bhaktapur-theme') as Theme | null;
+  if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+  
+  // Default to system preference
+  return getSystemTheme();
+};
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Update the DOM when theme changes
-  const updateTheme = useCallback((newTheme: Theme) => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    }
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('theme', newTheme);
-    }
+  const applyTheme = useCallback((newTheme: Theme) => {
+    if (typeof document === 'undefined') return;
+    
+    const root = document.documentElement;
+    
+    // Remove both classes first
+    root.classList.remove('light', 'dark');
+    
+    // Add the correct class
+    root.classList.add(newTheme);
+    
+    // Set data attribute for CSS
+    root.setAttribute('data-theme', newTheme);
+    
+    // Save to localStorage
+    localStorage.setItem('bhaktapur-theme', newTheme);
   }, []);
 
-  // Set initial theme and mounted state
+  // Initialize theme on mount
   useEffect(() => {
-    updateTheme(theme);
-    // Use setTimeout to defer the state update and avoid cascading renders
-    const timer = setTimeout(() => setMounted(true), 0);
+    const initialTheme = getInitialTheme();
+    setThemeState(initialTheme);
+    applyTheme(initialTheme);
+    
+    // Small delay to prevent flash
+    const timer = setTimeout(() => setMounted(true), 10);
     return () => clearTimeout(timer);
-  }, [theme, updateTheme]);
+  }, [applyTheme]);
 
-  // Listen for system theme changes when no preference is set
+  // Listen for system theme changes
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
+      // Only auto-switch if user hasn't manually set a preference
+      const savedTheme = localStorage.getItem('bhaktapur-theme');
+      if (!savedTheme) {
+        const newTheme = e.matches ? 'dark' : 'light';
+        setThemeState(newTheme);
+        applyTheme(newTheme);
       }
     };
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
     return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
-  }, []);
+  }, [applyTheme]);
 
-  // Toggle between light and dark theme
   const toggleTheme = useCallback(() => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-  }, []);
+    setThemeState((prev) => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      applyTheme(newTheme);
+      return newTheme;
+    });
+  }, [applyTheme]);
 
-  // Don't render until we've determined the theme
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+    applyTheme(newTheme);
+  }, [applyTheme]);
+
+  // Prevent flash of wrong theme
   if (!mounted) {
-    return null;
+    return (
+      <ThemeContext.Provider value={{ theme: 'light', toggleTheme: () => {}, setTheme: () => {} }}>
+        {children}
+      </ThemeContext.Provider>
+    );
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

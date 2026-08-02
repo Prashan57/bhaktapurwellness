@@ -1,320 +1,199 @@
-"use client";
+'use client';
 
-import { InView } from "@/components/motion/InView";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { InView } from '@/components/motion/InView';
+import { useTheme } from '@/context/ThemeContext';
+import Image from 'next/image';
+import { useState } from 'react';
 
-// Sample gallery items data
 const galleryItems = [
   {
     id: 1,
-    title: "Wellness Retreat",
-    description:
-      "Experience ultimate relaxation in our serene wellness retreat center.",
-    image: "/images/gallery/hero.jpg",
+    title: 'Wellness Retreat',
+    description: 'Experience ultimate relaxation in our serene wellness center.',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=600&q=80',
+    category: 'Retreat',
   },
   {
     id: 2,
-    title: "Yoga Sessions",
-    description:
-      "Rejuvenate your mind and body with our expert-led yoga classes.",
-    image: "/images/gallery/yoga-session.jpg",
+    title: 'Yoga Sessions',
+    description: 'Rejuvenate your mind and body with expert-led yoga classes.',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
+    category: 'Fitness',
   },
   {
     id: 3,
-    title: "Spa Treatments",
-    description:
-      "Indulge in our luxurious spa treatments for complete relaxation.",
-    image: "/images/gallery/spa-treatment.jpg",
+    title: 'Spa Treatments',
+    description: 'Indulge in luxurious spa treatments for complete relaxation.',
+    image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
+    category: 'Spa',
   },
   {
     id: 4,
-    title: "Meditation",
-    description: "Find your inner peace with our guided meditation sessions.",
-    image: "/images/gallery/qwe.jpg",
+    title: 'Meditation Space',
+    description: 'Find your inner peace in our dedicated meditation rooms.',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80',
+    category: 'Wellness',
   },
   {
     id: 5,
-    title: "Healthy Cuisine",
-    description:
-      "Nourish your body with our delicious and healthy menu options.",
-    image: "/images/gallery/healthy-food.jpg",
+    title: 'Healthy Cuisine',
+    description: 'Nourish your body with delicious and nutritious meals.',
+    image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80',
+    category: 'Cafe',
   },
   {
     id: 6,
-    title: "Outdoor Activities",
-    description:
-      "Connect with nature through our range of outdoor wellness activities.",
-    image: "/images/gallery/zumba.jpg",
+    title: 'Outdoor Activities',
+    description: 'Connect with nature through outdoor wellness activities.',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
+    category: 'Fitness',
   },
 ];
 
-const Card = ({
-  item,
-  isActive = false,
-}: {
-  item: (typeof galleryItems)[0];
-  isActive?: boolean;
-}) => (
-  <motion.div
-    className={`h-full p-3 w-full max-w-4xl mx-auto ${
-      isActive ? "pt-1 pb-8" : "py-4"
-    }`}
-    initial={{ scale: 0.97, opacity: isActive ? 1 : 0.92 }}
-    animate={{
-      scale: isActive ? 1.02 : 0.98,
-      opacity: isActive ? 1 : 0.92,
-      zIndex: isActive ? 10 : 1,
-    }}
-    transition={{ duration: 0.45, ease: "easeOut" }}
-  >
-    <div
-      className={`bg-white/60 dark:bg-black/10 backdrop-blur-sm border border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden h-full flex flex-col transition-all duration-500 ${
-        isActive
-          ? "shadow-2xl"
-          : "shadow-sm hover:shadow-md hover:-translate-y-1"
-      }`}
-    >
-      <div className="relative overflow-hidden aspect-[4/3] md:aspect-video bg-gray-50 group">
-        <Image
-          src={item.image}
-          alt={item.title}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-
-        {/* subtle vignette to improve contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/12 to-transparent pointer-events-none" />
-
-        {/* Transparent bottom info bar (adapts to light/dark) */}
-        <div className="absolute left-4 right-4 bottom-4 md:bottom-6 p-4 md:p-6 rounded-xl bg-white/50 dark:bg-black/40 backdrop-blur-sm border border-white/5 dark:border-white/10 shadow-lg flex flex-col items-center text-center gap-3">
-          <h3 className="text-foreground dark:text-white text-lg md:text-xl font-semibold drop-shadow-md">
-            {item.title}
-          </h3>
-          <p className="text-foreground/80 dark:text-white/90 text-sm md:text-base leading-snug max-w-[70%] mx-auto line-clamp-2">
-            {item.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
+const categories = ['All', 'Retreat', 'Fitness', 'Spa', 'Wellness', 'Cafe'];
 
 export function GallerySection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % galleryItems.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const filteredItems = activeCategory === 'All' 
+    ? galleryItems 
+    : galleryItems.filter(item => item.category === activeCategory);
 
   return (
-    <section
-      id="gallery"
-      className="w-full overflow-hidden py-20 scroll-mt-28"
-      style={{
-        background:
-          "linear-gradient(to bottom, hsl(var(--background) / 0.95), hsl(var(--background) / 1))",
-      }}
-    >
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <InView>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-primary font-medium mb-3">
-              Our Gallery
+    <section id="gallery" className={`py-24 sm:py-32 relative overflow-hidden transition-colors duration-300 ${
+      isDark ? 'bg-[#0f0f0f]' : 'bg-white'
+    }`}>
+      {/* Decorative background */}
+      <div className="absolute inset-0">
+        <div className={`absolute top-0 right-0 w-96 h-96 rounded-full blur-[120px] ${
+          isDark ? 'bg-emerald-500/5' : 'bg-emerald-500/8'
+        }`} />
+        <div className={`absolute bottom-0 left-0 w-96 h-96 rounded-full blur-[120px] ${
+          isDark ? 'bg-emerald-500/5' : 'bg-emerald-500/8'
+        }`} />
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+        {/* Section header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <InView animation="fade-up">
+            <span className={`section-eyebrow mb-4 inline-flex items-center gap-2`}>
+              <span className={`w-8 h-[1px] ${isDark ? 'bg-emerald-500/50' : 'bg-emerald-700/40'}`} />
+              Gallery
+              <span className={`w-8 h-[1px] ${isDark ? 'bg-emerald-500/50' : 'bg-emerald-700/40'}`} />
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
-              Discover Our Wellness Journey
+          </InView>
+          <InView animation="fade-up" delay={100}>
+            <h2 className={`section-title mb-6`}>
+              Our <span className="text-emerald-600 dark:text-emerald-400">Wellness</span> Journey
             </h2>
-            <div className="w-24 h-1 bg-primary mx-auto my-6"></div>
-            <p className="text-foreground/80 dark:text-foreground/70 text-lg">
-              Immerse yourself in moments of tranquility and rejuvenation
-              through our visual journey
+          </InView>
+          <InView animation="fade-up" delay={200}>
+            <p className={`section-subtitle ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              Immerse yourself in moments of tranquility and rejuvenation 
+              through our visual journey.
             </p>
+          </InView>
+        </div>
+
+        {/* Category filter */}
+        <InView animation="fade-up" delay={300} className="mb-12">
+          <div className="flex flex-wrap justify-center gap-3">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  activeCategory === category
+                    ? 'bg-emerald-600 text-white shadow-primary'
+                    : isDark
+                      ? 'bg-white/5 text-gray-400 border border-white/10 hover:border-emerald-500/30 hover:text-emerald-400'
+                      : 'bg-gray-100 text-gray-500 border border-gray-200 hover:border-emerald-300 hover:text-emerald-700'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </InView>
-      </div>
 
-      {/* Full-bleed carousel wrapper with comfortable horizontal margins */}
-      <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-12 box-border">
-        <div className="w-full relative">
-          <Swiper
-            onSwiper={(swiper) => (swiperRef.current = swiper)}
-            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-            modules={[Navigation, Pagination, Autoplay]}
-            spaceBetween={16}
-            slidesPerView={1}
-            centeredSlides={true}
-            breakpoints={{
-              640: {
-                slidesPerView: 1.1,
-                spaceBetween: 20,
-              },
-              768: {
-                slidesPerView: 1.3,
-                spaceBetween: 24,
-              },
-              1024: {
-                slidesPerView: 1.8,
-                spaceBetween: 28,
-              },
-              1280: {
-                slidesPerView: 2.2,
-                spaceBetween: 32,
-              },
-              1536: {
-                slidesPerView: 2.5,
-                spaceBetween: 36,
-              },
-            }}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            loop={true}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-              el: ".gallery-pagination",
-            }}
-            navigation={{
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            }}
-            className="gallery-swiper"
-          >
-            {galleryItems.map((item, index) => (
-              <SwiperSlide key={item.id} className="py-8 flex justify-center">
-                <div className="group h-full w-full">
-                  <Card item={item} isActive={index === activeIndex} />
+        {/* Gallery grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredItems.map((item, index) => (
+            <InView key={item.id} animation="fade-up" delay={index * 100}>
+              <div
+                className={`group relative rounded-2xl overflow-hidden transition-all duration-500 cursor-pointer ${
+                  isDark
+                    ? 'bg-[#1a1a1a] border border-white/10 hover:border-emerald-500/30'
+                    : 'bg-white border border-gray-100 hover:border-emerald-200 shadow-sm hover:shadow-md'
+                }`}
+                onMouseEnter={() => setHoveredId(item.id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                {/* Image */}
+                <div className="relative h-64 sm:h-72 overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  
+                  {/* Category badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className={`text-[0.65rem] uppercase tracking-[0.15em] px-3 py-1.5 rounded-full backdrop-blur-sm ${
+                      isDark
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'
+                        : 'bg-white/90 text-emerald-700 border border-emerald-200'
+                    }`}>
+                      {item.category}
+                    </span>
+                  </div>
+
+                  {/* Hover overlay */}
+                  <div className={`absolute inset-0 transition-opacity duration-300 ${
+                    hoveredId === item.id
+                      ? isDark ? 'bg-emerald-500/10 backdrop-blur-sm' : 'bg-emerald-500/5 backdrop-blur-sm'
+                      : 'opacity-0'
+                  }`} />
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
 
-          {/* Custom Navigation */}
-          <div className="flex items-center justify-center mt-8 gap-4">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="hidden sm:inline-flex swiper-button-prev w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm shadow-lg items-center justify-center text-primary hover:scale-105 transform transition"
-              aria-label="Previous slide"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-
-            <div className="gallery-pagination flex items-center space-x-2" />
-
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="hidden sm:inline-flex swiper-button-next w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm shadow-lg items-center justify-center text-primary hover:scale-105 transform transition"
-              aria-label="Next slide"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 6l6 6-6 6" />
-              </svg>
-            </button>
-          </div>
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${
+                    isDark
+                      ? 'text-white group-hover:text-emerald-400'
+                      : 'text-gray-900 group-hover:text-emerald-700'
+                  }`}>
+                    {item.title}
+                  </h3>
+                  <p className={`text-sm leading-relaxed ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            </InView>
+          ))}
         </div>
+
+        {/* View more */}
+        <InView animation="fade-up" delay={400} className="mt-12 text-center">
+          <button className={`btn btn-outline px-8 py-3.5 ${
+            isDark
+              ? 'text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10'
+              : 'text-emerald-700 border-emerald-700/30 hover:bg-emerald-50'
+          }`}>
+            View Full Gallery
+          </button>
+        </InView>
       </div>
-
-      <style jsx global>{`
-        /* Keep horizontal margins via outer wrapper; swiper itself uses vertical padding */
-        .gallery-swiper {
-          padding: 2rem 0;
-          width: 100%;
-          margin: 0;
-          box-sizing: border-box;
-        }
-
-        .gallery-swiper .swiper-wrapper {
-          padding: 1rem 0;
-        }
-
-        .gallery-swiper .swiper-slide {
-          transition: all 0.4s ease;
-          height: auto;
-          display: flex;
-          justify-content: center;
-          box-sizing: border-box;
-          padding: 0 0.5rem; /* small gutter between slides */
-        }
-
-        /* slightly taller cards on small screens for better visual presence */
-        @media (max-width: 767px) {
-          .gallery-swiper .swiper-slide .aspect-video {
-            aspect-ratio: 4 / 3 !important;
-          }
-        }
-
-        /* ensure navigation arrows are fully hidden on small screens */
-        @media (max-width: 639px) {
-          .swiper-button-prev,
-          .swiper-button-next {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-        }
-
-        .gallery-swiper .swiper-slide-active {
-          z-index: 2;
-          transform: scale(1.05);
-        }
-
-        .gallery-pagination .swiper-pagination-bullet {
-          width: 8px;
-          height: 8px;
-          background: #e6e7eb;
-          opacity: 1;
-          border-radius: 9999px;
-          transition: all 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
-          transform-origin: center;
-        }
-
-        .gallery-pagination .swiper-pagination-bullet-active {
-          width: 14px;
-          height: 14px;
-          background: #2563eb; /* primary */
-          box-shadow: 0 4px 18px rgba(37, 99, 235, 0.18);
-          transform: scale(1.05);
-        }
-
-        .swiper-button-disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      `}</style>
     </section>
   );
 }

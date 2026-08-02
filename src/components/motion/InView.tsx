@@ -1,58 +1,77 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode, ElementType, CSSProperties } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type ElementType } from 'react';
 
-type InViewProps = {
+interface InViewProps {
   children: ReactNode;
-  className?: string;
   as?: ElementType;
   delay?: number;
+  threshold?: number;
+  rootMargin?: string;
   once?: boolean;
-};
+  className?: string;
+  animation?: 'fade-up' | 'fade-in' | 'scale-up' | 'slide-left' | 'slide-right';
+}
 
-export function InView({ children, className = '', as: Tag = 'div', delay = 0, once = true }: InViewProps) {
+export function InView({
+  children,
+  as: Component = 'div',
+  delay = 0,
+  threshold = 0.1,
+  rootMargin = '0px 0px -50px 0px',
+  once = true,
+  className = '',
+  animation = 'fade-up',
+}: InViewProps) {
   const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setVisible(true);
-      return;
-    }
-    const node = ref.current;
-    if (!node) return;
+    const element = ref.current;
+    if (!element) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            if (once) observer.unobserve(entry.target);
-          } else if (!once) {
-            setVisible(false);
-          }
-        });
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setIsInView(true), delay);
+          if (once) observer.unobserve(element);
+        } else if (!once) {
+          setIsInView(false);
+        }
       },
-      { threshold: 0.15 }
+      { threshold, rootMargin }
     );
 
-    observer.observe(node);
+    observer.observe(element);
     return () => observer.disconnect();
-  }, [once]);
+  }, [delay, threshold, rootMargin, once]);
 
-  const style: CSSProperties = delay ? { transitionDelay: `${delay}ms` } : {};
+  const getAnimationStyles = () => {
+    const baseStyles = 'transition-all duration-700 ease-out';
+    
+    switch (animation) {
+      case 'fade-up':
+        return `${baseStyles} ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`;
+      case 'fade-in':
+        return `${baseStyles} ${isInView ? 'opacity-100' : 'opacity-0'}`;
+      case 'scale-up':
+        return `${baseStyles} ${isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`;
+      case 'slide-left':
+        return `${baseStyles} ${isInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`;
+      case 'slide-right':
+        return `${baseStyles} ${isInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`;
+      default:
+        return `${baseStyles} ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`;
+    }
+  };
 
   return (
-    <Tag
-      ref={ref as any}
-      style={style}
-      className={[
-        'transform transition-all duration-700 ease-out will-change-transform',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
-        className,
-      ].join(' ')}
+    <Component
+      ref={ref}
+      className={`${getAnimationStyles()} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
-    </Tag>
+    </Component>
   );
 }

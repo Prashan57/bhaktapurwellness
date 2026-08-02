@@ -1,29 +1,19 @@
 import { HeroSection } from '@/components/sections/HeroSection';
-import { ServicesSection } from '@/components/sections/ServicesSection';
-import { GallerySection } from '@/components/sections/GallerySection';
-import { ContactSection } from '@/components/sections/ContactSection';
+import { ServicesOverview } from '@/components/sections/ServicesOverview';
 import { PricingSection } from '@/components/sections/PricingSection';
+import { GallerySection } from '@/components/sections/GallerySection';
+import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
+import { ContactSection } from '@/components/sections/ContactSection';
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      
-      
-      {/* Hero Section */}
       <HeroSection />
-
-      {/* Services Section */}
-      <ServicesSection />
-
+      <ServicesOverview />
       <PricingSection />
-
-      {/* Gallery Section */}
       <GallerySection />
-
-      {/* Contact Section */}
+      <TestimonialsSection />
       <ContactSection />
-
-      {/* Footer */}
     </div>
   );
 }
