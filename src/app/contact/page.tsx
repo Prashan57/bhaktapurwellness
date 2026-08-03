@@ -31,18 +31,18 @@ export default function ContactPage() {
       <section className={`py-32 sm:py-40 ${isDark ? 'bg-[#141414]' : 'bg-gray-50'}`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <InView animation="fade-up">
+            <InView animation="fade-in">
               <span className={`section-eyebrow mb-4 inline-flex items-center gap-2`}>
                 <span className={`w-8 h-[1px] ${isDark ? 'bg-emerald-500/50' : 'bg-emerald-700/40'}`} />
                 Contact Us
               </span>
             </InView>
-            <InView animation="fade-up" delay={100}>
-              <h1 className={`mb-6`}>
-                Get in <span className="text-emerald-600 dark:text-emerald-400">Touch</span>
+            <InView animation="fade-in" delay={100}>
+              <h1 className={`mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Get in <span className="text-emerald-600">Touch</span>
               </h1>
             </InView>
-            <InView animation="fade-up" delay={200}>
+            <InView animation="fade-in" delay={200}>
               <p className={`text-lg sm:text-xl max-w-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 Have questions? We would love to hear from you. Send us a message 
                 and we will respond as soon as possible.
@@ -57,7 +57,7 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <InView animation="fade-up">
+            <InView animation="fade-in">
               <div className={`rounded-2xl p-8 ${
                 isDark
                   ? 'bg-[#1a1a1a]/80 border border-white/10'
@@ -191,7 +191,7 @@ export default function ContactPage() {
             </InView>
 
             {/* Contact Info */}
-            <InView animation="fade-up" delay={200} className="space-y-6">
+            <InView animation="fade-in" delay={200} className="space-y-6">
               {/* Contact Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
@@ -239,7 +239,7 @@ export default function ContactPage() {
                       ? 'bg-[#1a1a1a]/80 border border-white/10'
                       : 'bg-gray-50 border border-gray-200'
                   }`}>
-                    <div className="text-emerald-600 dark:text-emerald-400 mb-3">{item.icon}</div>
+                    <div className="text-emerald-600 mb-3">{item.icon}</div>
                     <h3 className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{item.title}</h3>
                     <p className={`text-sm whitespace-pre-line ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.value}</p>
                   </div>

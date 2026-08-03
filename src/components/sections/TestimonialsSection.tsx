@@ -2,131 +2,128 @@
 
 import { InView } from '@/components/motion/InView';
 import { useTheme } from '@/context/ThemeContext';
-import Image from 'next/image';
-import { useState } from 'react';
 import { TESTIMONIALS } from '@/constants/constants';
+import { useEffect, useRef, useState } from 'react';
 
 export function TestimonialsSection() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const onScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = container.firstChild instanceof HTMLElement ? container.firstChild.offsetWidth + 16 : 300;
+      const idx = Math.round(scrollLeft / cardWidth);
+      setActiveIdx(Math.min(Math.max(idx, 0), TESTIMONIALS.length - 1));
+    };
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setActiveIdx((prev) => {
+        const next = (prev + 1) % TESTIMONIALS.length;
+        const container = scrollRef.current;
+        if (container) {
+          const cardWidth = container.firstChild instanceof HTMLElement ? container.firstChild.offsetWidth + 16 : 300;
+          container.scrollTo({ left: next * cardWidth, behavior: 'smooth' });
+        }
+        return next;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
+  const scrollTo = (idx: number) => {
+    setIsAutoPlaying(false);
+    setActiveIdx(idx);
+    const container = scrollRef.current;
+    if (container) {
+      const cardWidth = container.firstChild instanceof HTMLElement ? container.firstChild.offsetWidth + 16 : 300;
+      container.scrollTo({ left: idx * cardWidth, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <section id="testimonials" className={`py-24 sm:py-32 relative overflow-hidden transition-colors duration-300 ${
-      isDark ? 'bg-[#141414]' : 'bg-gray-50'
-    }`}>
-      {/* Decorative background */}
-      <div className="absolute inset-0">
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] ${
-          isDark ? 'bg-emerald-500/5' : 'bg-emerald-500/8'
-        }`} />
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Section header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <InView animation="fade-up">
-            <span className={`section-eyebrow mb-4 inline-flex items-center gap-2`}>
-              <span className={`w-8 h-[1px] ${isDark ? 'bg-emerald-500/50' : 'bg-emerald-700/40'}`} />
+    <section className="relative w-full py-20 sm:py-28 lg:py-36 bg-background text-foreground">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col items-center text-center gap-4 mb-16">
+          <InView animation="fade-in">
+            <span className="section-eyebrow">
+              <span className="w-8 h-px" style={{ backgroundColor: '#02731d' }} />
               Testimonials
-              <span className={`w-8 h-[1px] ${isDark ? 'bg-emerald-500/50' : 'bg-emerald-700/40'}`} />
+              <span className="w-8 h-px" style={{ backgroundColor: '#02731d' }} />
             </span>
           </InView>
-          <InView animation="fade-up" delay={100}>
-            <h2 className={`section-title mb-6`}>
-              What Our <span className="text-emerald-600 dark:text-emerald-400">Members</span> Say
+          <InView animation="fade-in" delay={100}>
+            <h2 className="section-title">
+              What Our <span className="gradient-text">Members Say</span>
             </h2>
           </InView>
-          <InView animation="fade-up" delay={200}>
-            <p className={`section-subtitle ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Hear from our satisfied members about their transformative 
-              wellness experiences at Bhaktapur Wellness.
+          <InView animation="fade-in" delay={150}>
+            <p className="section-subtitle">
+              Real stories from real people who have transformed their lives with us.
             </p>
           </InView>
         </div>
 
-        {/* Testimonials grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {TESTIMONIALS.map((testimonial, index) => (
-            <InView key={testimonial.id} animation="fade-up" delay={index * 150}>
-              <div
-                className={`relative rounded-2xl p-8 transition-all duration-500 h-full flex flex-col ${
-                  activeTestimonial === index
-                    ? isDark
-                      ? 'bg-gradient-to-b from-emerald-500/15 to-emerald-500/5 border-2 border-emerald-500/40 shadow-primary-lg'
-                      : 'bg-gradient-to-b from-emerald-50 to-white border-2 border-emerald-700/30 shadow-lg'
-                    : isDark
-                      ? 'bg-[#1a1a1a] border border-white/10 hover:border-emerald-500/20'
-                      : 'bg-white border border-gray-200 hover:border-emerald-200 shadow-sm'
-                }`}
-                onMouseEnter={() => setActiveTestimonial(index)}
-              >
-                {/* Quote icon */}
-                <div className={`mb-6 ${isDark ? 'text-emerald-500/30' : 'text-emerald-200'}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                  </svg>
-                </div>
-
-                {/* Content */}
-                <p className={`leading-relaxed mb-8 flex-1 italic font-accent text-lg ${
-                  isDark ? 'text-gray-300' : 'text-gray-600'
+        {/* Testimonials */}
+        <div className="relative max-w-7xl mx-auto">
+          <div ref={scrollRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-6 px-4 sm:px-0 -mx-4 sm:mx-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+            {TESTIMONIALS.map((testimonial) => (
+              <div key={testimonial.name} className="snap-center flex-shrink-0 w-[85vw] sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]">
+                <div className={`relative flex flex-col h-full rounded-3xl overflow-hidden transition-all duration-500 ${
+                  isDark
+                    ? 'bg-[#1a1a1a] border border-white/8 hover:border-emerald-500/20 shadow-luxury hover:shadow-luxury-lg'
+                    : 'bg-gray-50 border border-gray-200 hover:border-emerald-200 shadow-sm hover:shadow-lg'
                 }`}>
-                  &ldquo;{testimonial.content}&rdquo;
-                </p>
+                  <div className="p-8 flex-1 flex flex-col">
+                    {/* Stars */}
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className={`h-5 w-5 ${i < testimonial.rating ? (isDark ? 'text-emerald-400' : 'text-emerald-600') : (isDark ? 'text-gray-600' : 'text-gray-300')}`} fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
 
-                {/* Author */}
-                <div className="flex items-center gap-4">
-                  <div className={`relative h-12 w-12 rounded-full overflow-hidden ${
-                    isDark ? 'border-2 border-emerald-500/30' : 'border-2 border-emerald-200'
-                  }`}>
-                    <Image
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      fill
-                      sizes="48px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h4 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {testimonial.name}
-                    </h4>
-                    <p className={`text-xs ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                      {testimonial.role}
-                    </p>
-                  </div>
-                  <div className="ml-auto flex gap-0.5">
-                    {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
+                    <p className={`text-sm leading-relaxed flex-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>&ldquo;{testimonial.content}&rdquo;</p>
+
+                    <div className="flex items-center gap-4 mt-8 pt-6 border-t border-white/5">
+                      <div className="relative h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+                        <img src={testimonial.avatar} alt={testimonial.name} className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <h4 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{testimonial.name}</h4>
+                        <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{testimonial.role}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </InView>
-          ))}
-        </div>
-
-        {/* Trust indicators */}
-        <InView animation="fade-up" delay={400} className="mt-16">
-          <div className={`flex flex-wrap justify-center items-center gap-8 sm:gap-12 ${
-            isDark ? 'text-gray-500' : 'text-gray-400'
-          }`}>
-            {[
-              { label: '4.9/5 Rating', icon: '★' },
-              { label: '500+ Reviews', icon: '✦' },
-              { label: '98% Satisfaction', icon: '◆' },
-              { label: 'Award Winning', icon: '♦' },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-2">
-                <span className="text-emerald-500 text-lg">{item.icon}</span>
-                <span className="text-sm font-medium">{item.label}</span>
               </div>
             ))}
           </div>
-        </InView>
+
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-8">
+            {TESTIMONIALS.map((_, idx) => (
+              <button key={idx} onClick={() => scrollTo(idx)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  activeIdx === idx
+                    ? isDark ? 'bg-emerald-400 w-8' : 'bg-emerald-600 w-8'
+                    : isDark ? 'bg-white/20 hover:bg-white/40 w-2' : 'bg-gray-300 hover:bg-gray-400 w-2'
+                }`} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -10,7 +10,7 @@ interface InViewProps {
   rootMargin?: string;
   once?: boolean;
   className?: string;
-  animation?: 'fade-up' | 'fade-in' | 'scale-up' | 'slide-left' | 'slide-right';
+  animation?: 'fade-in' | 'fade-up';
 }
 
 export function InView({
@@ -21,7 +21,7 @@ export function InView({
   rootMargin = '0px 0px -50px 0px',
   once = true,
   className = '',
-  animation = 'fade-up',
+  animation = 'fade-in',
 }: InViewProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [isInView, setIsInView] = useState(false);
@@ -46,29 +46,14 @@ export function InView({
     return () => observer.disconnect();
   }, [delay, threshold, rootMargin, once]);
 
-  const getAnimationStyles = () => {
-    const baseStyles = 'transition-all duration-700 ease-out';
-    
-    switch (animation) {
-      case 'fade-up':
-        return `${baseStyles} ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`;
-      case 'fade-in':
-        return `${baseStyles} ${isInView ? 'opacity-100' : 'opacity-0'}`;
-      case 'scale-up':
-        return `${baseStyles} ${isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`;
-      case 'slide-left':
-        return `${baseStyles} ${isInView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`;
-      case 'slide-right':
-        return `${baseStyles} ${isInView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`;
-      default:
-        return `${baseStyles} ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`;
-    }
-  };
+  const animationClass = animation === 'fade-up'
+    ? `transition-all duration-700 ease-out ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`
+    : `transition-all duration-700 ease-out ${isInView ? 'opacity-100' : 'opacity-0'}`;
 
   return (
     <Component
       ref={ref}
-      className={`${getAnimationStyles()} ${className}`}
+      className={`${animationClass} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
