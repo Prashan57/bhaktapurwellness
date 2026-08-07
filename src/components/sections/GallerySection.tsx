@@ -1,320 +1,406 @@
 "use client";
 
+import { useMemo, useState, type ReactNode } from "react";
 import { InView } from "@/components/motion/InView";
-import { motion } from "framer-motion";
+import { Modal } from "@/components/ui/Modal";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { MdPhotoLibrary } from "react-icons/md";
+import { HiOutlineZoomIn } from "react-icons/hi";
 
-// Sample gallery items data
-const galleryItems = [
+type Category = "Wellness" | "Facilities" | "Cuisine" | "Outdoors";
+
+const CATEGORIES: Array<Category | "All"> = [
+  "All",
+  "Wellness",
+  "Facilities",
+  "Cuisine",
+  "Outdoors",
+];
+
+type GalleryItem = {
+  id: number;
+  title: string;
+  subtitle: string;
+  category: Category;
+  image: string;
+  span: string;
+};
+
+// Bento grid: 4 columns on desktop, varied row/col spans create
+// a dense, layered mosaic layout on larger screens.
+const galleryItems: GalleryItem[] = [
   {
     id: 1,
-    title: "Wellness Retreat",
-    description:
-      "Experience ultimate relaxation in our serene wellness retreat center.",
+    title: "Himalayan Sanctuary",
+    subtitle: "The lap of stillness, overlooking the valley",
+    category: "Wellness",
     image: "/images/gallery/hero.jpg",
+    span: "md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
     title: "Yoga Sessions",
-    description:
-      "Rejuvenate your mind and body with our expert-led yoga classes.",
+    subtitle: "Guided flows for mind & body",
+    category: "Wellness",
     image: "/images/gallery/yoga-session.jpg",
+    span: "md:col-span-1 md:row-span-1",
   },
   {
     id: 3,
     title: "Spa Treatments",
-    description:
-      "Indulge in our luxurious spa treatments for complete relaxation.",
+    subtitle: "Restorative rituals with Himalayan botanicals",
+    category: "Wellness",
     image: "/images/gallery/spa-treatment.jpg",
+    span: "md:col-span-1 md:row-span-2",
   },
   {
     id: 4,
-    title: "Meditation",
-    description: "Find your inner peace with our guided meditation sessions.",
+    title: "Fitness Arena",
+    subtitle: "Cardio, strength & the boxing ring",
+    category: "Facilities",
     image: "/images/gallery/qwe.jpg",
+    span: "md:col-span-2 md:row-span-1",
   },
   {
     id: 5,
-    title: "Healthy Cuisine",
-    description:
-      "Nourish your body with our delicious and healthy menu options.",
-    image: "/images/gallery/healthy-food.jpg",
+    title: "Open-Air Meditation",
+    subtitle: "Find balance under the open sky",
+    category: "Wellness",
+    image: "/images/gallery/meditation.jpg",
+    span: "md:col-span-1 md:row-span-1",
   },
   {
     id: 6,
-    title: "Outdoor Activities",
-    description:
-      "Connect with nature through our range of outdoor wellness activities.",
+    title: "Zumba & Cardio",
+    subtitle: "High-energy sessions that keep you moving",
+    category: "Facilities",
     image: "/images/gallery/zumba.jpg",
+    span: "md:col-span-1 md:row-span-1",
+  },
+  {
+    id: 7,
+    title: "Wellness Retreat",
+    subtitle: "Rejuvenative group escapes",
+    category: "Wellness",
+    image: "/images/gallery/wellness-retreat.jpg",
+    span: "md:col-span-2 md:row-span-1",
+  },
+  {
+    id: 8,
+    title: "Organic Cuisine",
+    subtitle: "Mindfully-sourced meals from our kitchen",
+    category: "Cuisine",
+    image: "/images/gallery/healthy-food.jpg",
+    span: "md:col-span-1 md:row-span-1",
+  },
+  {
+    id: 9,
+    title: "Outdoor Activities",
+    subtitle: "Trails, fresh air & gentle adventure",
+    category: "Outdoors",
+    image: "/images/gallery/outdoor-activity.jpg",
+    span: "md:col-span-2 md:row-span-1",
+  },
+  {
+    id: 10,
+    title: "Poolside Calm",
+    subtitle: "Rest, reflection & warm water",
+    category: "Facilities",
+    image: "/images/gallery/bw.jpg",
+    span: "md:col-span-1 md:row-span-2",
   },
 ];
 
-const Card = ({
-  item,
-  isActive = false,
-}: {
-  item: (typeof galleryItems)[0];
-  isActive?: boolean;
-}) => (
-  <motion.div
-    className={`h-full p-3 w-full max-w-4xl mx-auto ${
-      isActive ? "pt-1 pb-8" : "py-4"
-    }`}
-    initial={{ scale: 0.97, opacity: isActive ? 1 : 0.92 }}
-    animate={{
-      scale: isActive ? 1.02 : 0.98,
-      opacity: isActive ? 1 : 0.92,
-      zIndex: isActive ? 10 : 1,
-    }}
-    transition={{ duration: 0.45, ease: "easeOut" }}
-  >
-    <div
-      className={`bg-white/60 dark:bg-black/10 backdrop-blur-sm border border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden h-full flex flex-col transition-all duration-500 ${
-        isActive
-          ? "shadow-2xl"
-          : "shadow-sm hover:shadow-md hover:-translate-y-1"
-      }`}
-    >
-      <div className="relative overflow-hidden aspect-[4/3] md:aspect-video bg-gray-50 group">
-        <Image
-          src={item.image}
-          alt={item.title}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-
-        {/* subtle vignette to improve contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/12 to-transparent pointer-events-none" />
-
-        {/* Transparent bottom info bar (adapts to light/dark) */}
-        <div className="absolute left-4 right-4 bottom-4 md:bottom-6 p-4 md:p-6 rounded-xl bg-white/50 dark:bg-black/40 backdrop-blur-sm border border-white/5 dark:border-white/10 shadow-lg flex flex-col items-center text-center gap-3">
-          <h3 className="text-foreground dark:text-white text-lg md:text-xl font-semibold drop-shadow-md">
-            {item.title}
-          </h3>
-          <p className="text-foreground/80 dark:text-white/90 text-sm md:text-base leading-snug max-w-[70%] mx-auto line-clamp-2">
-            {item.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
+type ActiveItem = GalleryItem;
 
 export function GallerySection() {
+  const [filter, setFilter] = useState<Category | "All">("All");
+  const [active, setActive] = useState<ActiveItem | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef = useRef<any>(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % galleryItems.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const visibleItems = useMemo(
+    () => (filter === "All" ? galleryItems : galleryItems.filter((i) => i.category === filter)),
+    [filter]
+  );
+
+  const openLightbox = (item: GalleryItem, index: number) => {
+    setActive(item);
+    setActiveIndex(index);
+  };
+
+  const next = () => {
+    const idx = (activeIndex + 1) % visibleItems.length;
+    setActive(visibleItems[idx]);
+    setActiveIndex(idx);
+  };
+
+  const prev = () => {
+    const idx = (activeIndex - 1 + visibleItems.length) % visibleItems.length;
+    setActive(visibleItems[idx]);
+    setActiveIndex(idx);
+  };
 
   return (
     <section
       id="gallery"
-      className="w-full overflow-hidden py-20 scroll-mt-28"
-      style={{
-        background:
-          "linear-gradient(to bottom, hsl(var(--background) / 0.95), hsl(var(--background) / 1))",
+      className="py-24 bg-[#041a1b] text-white scroll-mt-24 relative overflow-hidden"
+    >
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 -left-16 w-96 h-96 bg-[#0a4243]/50 rounded-full blur-[150px] pointer-events-none animate-float-soft" />
+      <div className="absolute bottom-1/3 right-0 w-[34rem] h-[34rem] bg-[#fdd693]/8 rounded-full blur-[160px] pointer-events-none animate-float-soft [animation-delay:-3s]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-40 bg-[#fdd693]/[0.04] blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="container mx-auto px-4 max-w-7xl relative z-10">
+        <InView className="text-center max-w-3xl mx-auto mb-12">
+          {/* Section eyebrow badge — uniform with contact/pricing-badge style */}
+          <span className="inline-flex items-center gap-2.5 rounded-full border border-[#fdd693]/30 bg-[#0a4243]/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#fdd693] backdrop-blur-xl shadow-lg shadow-black/20 mb-5">
+            <MdPhotoLibrary className="h-4 w-4" />
+            Our Gallery
+          </span>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+            Step Inside the{" "}
+            <span className="bg-gradient-to-r from-[#fdd693] via-[#fff0d0] to-[#f3be6a] bg-clip-text text-transparent">
+              Experience.
+            </span>
+          </h2>
+          <p className="mt-4 text-slate-300 text-base sm:text-lg">
+            A visual journey through our sanctuary — every corner crafted for rest, movement, and
+            rejuvenation.
+          </p>
+
+          <InView delay={120} className="mt-9">
+            <GridTabs active={filter} onChange={setFilter} />
+          </InView>
+        </InView>
+
+        {/* Bento grid: 4 columns on desktop, 2 on tablet, 1 on mobile */}
+        <motion.div
+          layout
+          className="grid grid-cols-1 md:grid-cols-4 auto-rows-[220px] md:auto-rows-[190px] gap-4 md:gap-5"
+        >
+          <AnimatePresence mode="popLayout">
+            {visibleItems.map((item, index) => (
+              <GalleryCard
+                key={item.id}
+                item={item}
+                index={index}
+                onOpen={() => openLightbox(item, index)}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* Lightbox modal */}
+      <Modal
+        open={Boolean(active)}
+        onClose={() => setActive(null)}
+        title={active?.category ?? "Gallery"}
+      >
+        {active ? (
+          <LightboxContent item={active} onPrev={prev} onNext={next} />
+        ) : null}
+      </Modal>
+    </section>
+  );
+}
+
+/* ===== Sub-components ===== */
+
+function GridTabs({
+  active,
+  onChange,
+}: {
+  active: Category | "All";
+  onChange: (category: Category | "All") => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+      {CATEGORIES.map((category) => {
+        const isActive = active === category;
+        return (
+          <button
+            key={category}
+            type="button"
+            onClick={() => onChange(category)}
+            className={`relative rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-300 ${
+              isActive
+                ? "text-[#0a4243]"
+                : "text-slate-300 border border-[#fdd693]/20 hover:border-[#fdd693]/50 hover:text-white"
+            }`}
+          >
+            {isActive && (
+              <motion.span
+                layoutId="gallery-tab-pill"
+                className="absolute inset-0 rounded-full bg-[#fdd693] shadow-lg shadow-[#fdd693]/30"
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              />
+            )}
+            <span className="relative z-10">{category}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function categoryTone(category: Category) {
+  switch (category) {
+    case "Wellness":
+      return "border-[#fdd693]/40 text-[#fdd693]";
+    case "Facilities":
+      return "border-[#7fe0c8]/40 text-[#7fe0c8]";
+    case "Cuisine":
+      return "border-[#f3be6a]/40 text-[#f3be6a]";
+    case "Outdoors":
+      return "border-[#9bd88f]/40 text-[#9bd88f]";
+    default:
+      return "border-[#fdd693]/40 text-[#fdd693]";
+  }
+}
+
+function GalleryCard({
+  item,
+  index,
+  onOpen,
+}: {
+  item: GalleryItem;
+  index: number;
+  onOpen: () => void;
+}) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.94, y: 30 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.94, y: 20 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
+      whileHover={{ scale: 0.985 }}
+      className={`group relative overflow-hidden rounded-3xl cursor-pointer ${item.span}`}
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${item.title}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
       }}
     >
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <InView>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-primary font-medium mb-3">
-              Our Gallery
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
-              Discover Our Wellness Journey
-            </h2>
-            <div className="w-24 h-1 bg-primary mx-auto my-6"></div>
-            <p className="text-foreground/80 dark:text-foreground/70 text-lg">
-              Immerse yourself in moments of tranquility and rejuvenation
-              through our visual journey
-            </p>
-          </div>
-        </InView>
+      <Image
+        src={item.image}
+        alt={item.title}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+        className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+      />
+
+      {/* Base vignette so the grid reads well even without hovering */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/0 opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
+
+      {/* Animated gold ring on hover */}
+      <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/0 group-hover:ring-[#fdd693]/40 transition-all duration-500" />
+
+      {/* Corner zoom affordance */}
+      <div className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white transition-all duration-500 group-hover:bg-[#fdd693] group-hover:text-[#0a4243] group-hover:border-[#fdd693]">
+        <HiOutlineZoomIn className="h-5 w-5" />
       </div>
 
-      {/* Full-bleed carousel wrapper with comfortable horizontal margins */}
-      <div className="w-full overflow-hidden px-4 sm:px-6 lg:px-12 box-border">
-        <div className="w-full relative">
-          <Swiper
-            onSwiper={(swiper) => (swiperRef.current = swiper)}
-            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-            modules={[Navigation, Pagination, Autoplay]}
-            spaceBetween={16}
-            slidesPerView={1}
-            centeredSlides={true}
-            breakpoints={{
-              640: {
-                slidesPerView: 1.1,
-                spaceBetween: 20,
-              },
-              768: {
-                slidesPerView: 1.3,
-                spaceBetween: 24,
-              },
-              1024: {
-                slidesPerView: 1.8,
-                spaceBetween: 28,
-              },
-              1280: {
-                slidesPerView: 2.2,
-                spaceBetween: 32,
-              },
-              1536: {
-                slidesPerView: 2.5,
-                spaceBetween: 36,
-              },
-            }}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            loop={true}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-              el: ".gallery-pagination",
-            }}
-            navigation={{
-              nextEl: ".swiper-button-next",
-              prevEl: ".swiper-button-prev",
-            }}
-            className="gallery-swiper"
-          >
-            {galleryItems.map((item, index) => (
-              <SwiperSlide key={item.id} className="py-8 flex justify-center">
-                <div className="group h-full w-full">
-                  <Card item={item} isActive={index === activeIndex} />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+      {/* Category badge */}
+      <span
+        className={`absolute top-4 left-4 rounded-full border px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/30 opacity-0 -translate-x-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 ${categoryTone(
+          item.category
+        )}`}
+      >
+        {item.category}
+      </span>
 
-          {/* Custom Navigation */}
-          <div className="flex items-center justify-center mt-8 gap-4">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="hidden sm:inline-flex swiper-button-prev w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm shadow-lg items-center justify-center text-primary hover:scale-105 transform transition"
-              aria-label="Previous slide"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
+      {/* Caption — slides up on hover */}
+      <div className="absolute left-5 right-5 bottom-5 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+        <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.25em] text-[#fdd693]/90">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <h3 className="text-white text-lg md:text-xl font-bold drop-shadow-md leading-snug">
+          {item.title}
+        </h3>
+        <p className="mt-0.5 text-sm text-white/70 truncate">{item.subtitle}</p>
+      </div>
+    </motion.div>
+  );
+}
 
-            <div className="gallery-pagination flex items-center space-x-2" />
+function LightboxContent({
+  item,
+  onPrev,
+  onNext,
+}: {
+  item: GalleryItem;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <motion.div
+        key={item.id}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden rounded-2xl border border-[#fdd693]/15 bg-[#041f1f]"
+      >
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
+          sizes="(max-width: 768px) 90vw, 900px"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute left-0 right-0 bottom-0 p-5">
+          <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.25em] text-[#fdd693]">
+            {item.category}
+          </span>
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white">{item.title}</h3>
+          <p className="mt-1 text-sm text-white/75">{item.subtitle}</p>
+        </div>
+      </motion.div>
 
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="hidden sm:inline-flex swiper-button-next w-12 h-12 rounded-full bg-white/70 backdrop-blur-sm shadow-lg items-center justify-center text-primary hover:scale-105 transform transition"
-              aria-label="Next slide"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 6l6 6-6 6" />
-              </svg>
-            </button>
-          </div>
+      {/* Prev / Next controls */}
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-slate-400">
+          {item.category} collection
+        </span>
+        <div className="flex items-center gap-2">
+          <LightboxButton label="Previous" onClick={onPrev}>
+            ←
+          </LightboxButton>
+          <LightboxButton label="Next" onClick={onNext}>
+            →
+          </LightboxButton>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <style jsx global>{`
-        /* Keep horizontal margins via outer wrapper; swiper itself uses vertical padding */
-        .gallery-swiper {
-          padding: 2rem 0;
-          width: 100%;
-          margin: 0;
-          box-sizing: border-box;
-        }
-
-        .gallery-swiper .swiper-wrapper {
-          padding: 1rem 0;
-        }
-
-        .gallery-swiper .swiper-slide {
-          transition: all 0.4s ease;
-          height: auto;
-          display: flex;
-          justify-content: center;
-          box-sizing: border-box;
-          padding: 0 0.5rem; /* small gutter between slides */
-        }
-
-        /* slightly taller cards on small screens for better visual presence */
-        @media (max-width: 767px) {
-          .gallery-swiper .swiper-slide .aspect-video {
-            aspect-ratio: 4 / 3 !important;
-          }
-        }
-
-        /* ensure navigation arrows are fully hidden on small screens */
-        @media (max-width: 639px) {
-          .swiper-button-prev,
-          .swiper-button-next {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-        }
-
-        .gallery-swiper .swiper-slide-active {
-          z-index: 2;
-          transform: scale(1.05);
-        }
-
-        .gallery-pagination .swiper-pagination-bullet {
-          width: 8px;
-          height: 8px;
-          background: #e6e7eb;
-          opacity: 1;
-          border-radius: 9999px;
-          transition: all 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
-          transform-origin: center;
-        }
-
-        .gallery-pagination .swiper-pagination-bullet-active {
-          width: 14px;
-          height: 14px;
-          background: #2563eb; /* primary */
-          box-shadow: 0 4px 18px rgba(37, 99, 235, 0.18);
-          transform: scale(1.05);
-        }
-
-        .swiper-button-disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      `}</style>
-    </section>
+function LightboxButton({
+  children,
+  label,
+  onClick,
+}: {
+  children: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#fdd693]/30 bg-[#0a4243] text-[#fdd693] transition-colors hover:bg-[#fdd693] hover:text-[#0a4243]"
+    >
+      {children}
+    </button>
   );
 }

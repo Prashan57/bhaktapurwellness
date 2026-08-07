@@ -1,161 +1,234 @@
 "use client";
 
-import { InView } from "@/components/motion/InView";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const HERO_IMAGES = [
+  {
+    id: "retreat",
+    title: "Wellness Sanctuary",
+    src: "/images/gallery/wellness-retreat.jpg",
+    heading: "Find Your",
+    accent: "Sanctuary",
+    description:
+      "A minimalist Nordic wellness retreat where expansive glass, natural serenity, and thoughtful design quiet the noise of everyday life.",
+  },
+  {
+    id: "meditation",
+    title: "Meditation & Sauna",
+    src: "/images/gallery/meditation.jpg",
+    heading: "Stillness &",
+    accent: "Steam",
+    description:
+      "Guided meditation and Himalayan salt saunas melt away tension, restoring calm to body and mind one breath at a time.",
+  },
+  {
+    id: "hero",
+    title: "Aquatic & Pool",
+    src: "/images/gallery/hero.jpg",
+    heading: "Dive Into",
+    accent: "Serenity",
+    description:
+      "Float in our heated indoor pool and hydrotherapy zones, where warm water and quiet light wash the day away.",
+  },
+  {
+    id: "outdoor",
+    title: "Outdoor Vitality",
+    src: "/images/gallery/outdoor-activity.jpg",
+    heading: "Move With",
+    accent: "Nature",
+    description:
+      "Open-air yoga, strength training, and sunrise movement sessions reconnect your body with the rhythm of the valley.",
+  },
+  {
+    id: "spa",
+    title: "Himalayan Spa Suite",
+    src: "/images/gallery/spa-treatment.jpg",
+    heading: "Restore &",
+    accent: "Renew",
+    description:
+      "Signature Himalayan spa rituals, deep-tissue therapies, and herbal treatments leave you renewed from head to toe.",
+  },
+];
+
+const NAV_LINKS = [
+  { label: "HOME", href: "#home", active: true },
+  { label: "FACILITIES", href: "#facilities" },
+  { label: "SERVICES", href: "#services" },
+  { label: "GALLERY", href: "#gallery" },
+  { label: "CONTACT", href: "#contact" },
+];
+
+const SLIDE_DURATION = 6000;
 
 export function HeroSection() {
-  const heroRef = useRef<HTMLElement | null>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Respect prefers-reduced-motion
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    let ticking = false;
-
-    const updateProgress = () => {
-      if (!heroRef.current) return;
-      const rect = heroRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 1;
-      const progressRaw = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-      const clamped = Math.min(Math.max(progressRaw, 0), 1);
-      setScrollProgress(Number.isFinite(clamped) ? clamped : 0);
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          updateProgress();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    updateProgress();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
+
+  // Carousel autoplay — paused on hover/focus
+  useEffect(() => {
+    if (isPaused) return;
+    timerRef.current = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, SLIDE_DURATION);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPaused]);
 
   return (
     <section
       id="home"
-      ref={heroRef}
-      className="relative overflow-hidden scroll-mt-28 min-h-screen w-full flex items-center justify-center"
+      className="relative w-full min-h-screen overflow-hidden bg-[#0a4243] text-white"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background image */}
-      <div className="absolute inset-0 -z-20">
-        <Image
-          src="/images/gallery/meditation.jpg"
-          alt="Wellness retreat hero"
-          fill
-          className="object-cover w-full h-full brightness-[0.85]"
-          sizes="(max-width: 640px) 100vw, 1200px"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/50 to-black/35 dark:from-black/70 dark:via-black/55" />
+      {/* ================= FULL-SCREEN IMAGE CAROUSEL ================= */}
+      <div className="absolute inset-0 overflow-hidden">
+        {HERO_IMAGES.map((item, idx) => (
+          <div
+            key={item.id}
+            className={`absolute inset-0 transition-opacity ease-in-out ${
+              idx === activeImageIndex ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ transitionDuration: "1200ms" }}
+          >
+            <div
+              className={`absolute inset-0 ${
+                reducedMotion ? "" : "animate-[kenburns_6s_ease-out_forwards]"
+              }`}
+              style={{
+                animationPlayState:
+                  idx === activeImageIndex && !isPaused ? "running" : "paused",
+              }}
+            >
+              <Image
+                src={item.src}
+                alt={item.title}
+                fill
+                priority={idx === 0}
+                sizes="100vw"
+                className="object-cover brightness-95 contrast-[1.02]"
+              />
+            </div>
+            {/* Gradient vignette — keeps text legible across the whole frame */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a4243]/70 via-black/10 to-black/40 pointer-events-none" />
+          </div>
+        ))}
+
+        {/* Extra scrim behind the headline zone */}
+        <div className="absolute inset-x-0 top-1/3 bottom-0 bg-gradient-to-b from-black/0 via-black/35 to-black/20 pointer-events-none z-10" />
       </div>
 
-      {/* Ambient decorations */}
-      <div
-        className="absolute -right-32 top-10 h-72 w-72 rounded-full bg-primary/30 blur-3xl -z-10 animate-float-soft"
-        style={{ transform: `translate3d(0, ${scrollProgress * -24}px, 0) scale(${1 + scrollProgress * 0.05})` }}
-      />
-      <div
-        className="absolute -left-24 bottom-12 h-64 w-64 rounded-full bg-secondary/40 blur-[130px] -z-10 hidden sm:block"
-        style={{ transform: `translate3d(0, ${scrollProgress * 28}px, 0) scale(${1 + scrollProgress * 0.08})` }}
-      />
+      {/* top bar removed — global `Navbar` component renders the header */}
 
-      <div className="container mx-auto px-4">
-        <div className="relative text-center max-w-5xl mx-auto z-10 flex flex-col items-center justify-center py-20 sm:py-32 min-h-[calc(100vh-120px)] md:min-h-0">
-          <InView className="animate-scale-in hidden sm:block">
-            <span className="section-eyebrow mb-4 sm:mb-6 bg-white/10 dark:bg-white/5 px-4 sm:px-5 py-2 rounded-full backdrop-blur">
-                Premier wellness destination
+      {/* hero-local menu removed — navigation lives in global `Navbar` component */}
+
+      {/* ================= OVERLAPPING HEADLINE (changes per slide) ================= */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none z-20 px-6 sm:px-12 md:px-16">
+        <h1
+          key={activeImageIndex}
+          className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.5rem] xl:text-[9rem] font-bold text-white tracking-tighter leading-[1.05] pb-2 drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
+        >
+          <span className="block overflow-hidden">
+            <span className="block animate-[fadeSlideUp_0.9s_ease-out_forwards]">
+              {HERO_IMAGES[activeImageIndex].heading}
             </span>
-          </InView>
-          <InView delay={80} className="animate-scale-in">
-            <h1 className="section-title text-3xl sm:text-5xl md:text-6xl text-white drop-shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-              <span className="bg-gradient-to-r from-primary/90 via-secondary/80 to-primary/70 bg-clip-text text-transparent drop-shadow-[0_10px_40px_rgba(12,74,110,0.35)] dark:text-white">
-                Escape to a world of mindful movement, luxury treatments, and
-                tailored nutrition.
-              </span>
-            </h1>
-          </InView>
-          <InView delay={160}>
-            <p className="mt-3 sm:mt-6 text-base sm:text-lg md:text-2xl text-white/80 max-w-3xl mx-auto">
-              Discover an elevated blend of gym performance, spa rituals, and
-              restorative cuisine curated for modern lifestyles.
-            </p>
-          </InView>
-          <InView delay={240}>
-            <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row justify-center gap-4">
-              <a href="#services" className="btn btn-primary px-7 py-3 flex items-center gap-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5.25 8.25l6.5-5.5 6.5 5.5M4.5 9.75v8.25a1.5 1.5 0 001.5 1.5h12a1.5 1.5 0 001.5-1.5V9.75"
-                  />
-                </svg>
-                Explore Services
-              </a>
-              <a
-                href="#contact"
-                className="btn btn-outline px-7 py-3 flex items-center gap-3 text-white/85 border-white/30 hover:bg-white/10"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 8.25l-9 5.25-9-5.25M21 12l-9 5.25L3 12"
-                  />
-                </svg>
-                Plan a Visit
-              </a>
-            </div>
-          </InView>
-          <InView delay={320} className="hidden sm:block">
-            <div
-              className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-y-6 sm:gap-0 sm:divide-x sm:divide-white/20 text-white/80 backdrop-blur-sm bg-white/5 rounded-2xl py-6 px-8 border border-white/15 shadow-elevated"
-              style={{ transform: `translate3d(0, ${scrollProgress * -14}px, 0)`, opacity: 0.85 + scrollProgress * 0.15 }}
+          </span>
+          <span className="block overflow-hidden">
+            <span
+              className="block animate-[fadeSlideUp_0.9s_ease-out_forwards] text-[#fdd693]"
+              style={{ animationDelay: "180ms" }}
             >
-              {[
-                { label: "Club Members", value: "2,500+" },
-                { label: "Wellness Programs", value: "15 curated" },
-                { label: "Chef-led Cuisine", value: "Seasonal menus" },
-              ].map((item) => (
-                <div key={item.label} className="flex flex-col items-center sm:px-6">
-                  <span className="text-sm uppercase tracking-[0.25em] text-white/60">
-                    {item.label}
-                  </span>
-                  <span className="mt-2 text-xl font-semibold text-white">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </InView>
+              {HERO_IMAGES[activeImageIndex].accent}
+              <svg
+                className="inline-block w-10 h-10 sm:w-16 sm:h-16 md:w-20 md:h-20 ml-2 -mt-2 sm:-mt-4 text-[#fdd693] fill-current align-middle"
+                viewBox="0 0 100 100"
+                aria-hidden
+              >
+                {/* leaf motif — reinforces wellness/nature theme */}
+                <path d="M50 15 C30 15 18 35 18 55 C18 75 33 88 50 90 C55 60 60 40 78 25 C68 18 58 15 50 15 Z" />
+                <path
+                  d="M50 90 C48 70 46 50 45 35"
+                  stroke="#0a4243"
+                  strokeWidth="2.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+          </span>
+        </h1>
+      </div>
+
+      {/* ================= BOTTOM: paragraph + dots + trust badge ================= */}
+      <div className="absolute bottom-0 inset-x-0 z-20 px-6 sm:px-12 md:px-16 pb-8 md:pb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="max-w-lg">
+          <p
+            key={`desc-${activeImageIndex}`}
+            className="text-white/90 text-sm sm:text-base leading-relaxed tracking-wide font-normal drop-shadow-sm animate-[fadeSlideUp_0.8s_ease-out_forwards]"
+            style={{ animationDelay: "300ms" }}
+          >
+            {HERO_IMAGES[activeImageIndex].description}
+          </p>
+
+          <div className="mt-6 flex items-center gap-2">
+            {HERO_IMAGES.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImageIndex(idx)}
+                aria-label={`Select slide ${idx + 1}`}
+                className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                  idx === activeImageIndex
+                    ? "w-8 bg-[#fdd693]"
+                    : "w-2 bg-[#fdd693]/40 hover:bg-[#fdd693]/70 hover:scale-125"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Local keyframes for the calm, once-only headline reveal + slow background zoom */}
+      <style jsx>{`
+        @keyframes fadeSlideUp {
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes kenburns {
+          from {
+            transform: scale(1);
+          }
+          to {
+            transform: scale(1.06);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-\\[fadeSlideUp_1s_ease-out_forwards\\],
+          .animate-\\[kenburns_6s_ease-out_forwards\\] {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
