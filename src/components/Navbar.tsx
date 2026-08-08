@@ -55,7 +55,7 @@ export function Navbar() {
       <div
         className={`fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 sm:px-12 md:px-16 transition-all duration-500 ${
           scrolled
-            ? "pt-3 pb-3 bg-transparent backdrop-blur-md border-b border-white/5"
+            ? "py-3.5 bg-[#041a1b]/10 backdrop-blur-md shadow-lg shadow-black/20"
             : "pt-6 md:pt-10 pb-0 bg-transparent"
         }`}
       >
