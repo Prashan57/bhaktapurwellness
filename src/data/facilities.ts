@@ -74,8 +74,8 @@ export const FACILITIES: Facility[] = [
     image: "/images/gallery/healthy-food.jpg",
     gallery: [
       "/images/gallery/healthy-food.jpg",
-      "/images/gallery/wellness-retreat.jpg",
-      "/images/gallery/outdoor-activity.jpg",
+      "/images/gallery/mindful-dining.jpg",
+      "/images/gallery/wellness-retreat-real.jpg",
     ],
     highlights: [
       "Seasonal farm-to-table menu",
@@ -126,11 +126,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Our high-performance gym is built for serious progress at every level. From dedicated heavy-lifting platforms and full free-weight zones to a comprehensive cardio suite, every corner of the floor is engineered to help you move better, recover faster, and feel unstoppable. Certified personal trainers are always on hand to sharpen your form, structure your program, and keep you accountable toward your goals.",
     icon: FaDumbbell,
-    image: "/images/gallery/qwe.jpg",
+    image: "/images/gallery/fitness-arena.jpg",
     gallery: [
-      "/images/gallery/qwe.jpg",
+      "/images/gallery/fitness-arena.jpg",
       "/images/gallery/zumba.jpg",
-      "/images/gallery/outdoor-activity.jpg",
+      "/images/gallery/outdoor-trail.jpg",
     ],
     highlights: [
       "State-of-the-art strength & cardio equipment",
@@ -181,11 +181,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Step into the ring and channel your intensity into craft. Our dedicated boxing studio features a regulation-size sparring ring, a heavy bag alley, and floor-to-ceiling striking stations, with programs led by seasoned martial arts coaches. Whether you are stepping in for your first class or preparing for a fight, every session builds the discipline, conditioning, and confidence that boxing is famous for.",
     icon: GiBoxingGlove,
-    image: "/images/gallery/qwe.jpg",
+    image: "/images/gallery/fitness-arena.jpg",
     gallery: [
-      "/images/gallery/qwe.jpg",
+      "/images/gallery/fitness-arena.jpg",
       "/images/gallery/zumba.jpg",
-      "/images/gallery/wellness-retreat.jpg",
+      "/images/gallery/himalayan-sanctuary.jpg",
     ],
     highlights: [
       "Regulation-size sparring ring",
@@ -236,11 +236,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Plunge into crystal-clear, climate-controlled water any day of the year. Our indoor heated pool is perfect for morning laps, gentle aquatic recovery, and family-friendly afternoons alike. Dedicated lanes keep lap swimmers moving freely while the shallow leisure zone welcomes beginners — all finished with premium locker rooms and organic towel service.",
     icon: FaSwimmer,
-    image: "/images/gallery/hero.jpg",
+    image: "/images/gallery/poolside-calm.jpg",
     gallery: [
-      "/images/gallery/hero.jpg",
-      "/images/gallery/bw.jpg",
-      "/images/gallery/meditation.jpg",
+      "/images/gallery/poolside-calm.jpg",
+      "/images/gallery/himalayan-sanctuary.jpg",
+      "/images/gallery/spa-treatment.jpg",
     ],
     highlights: [
       "Climate-controlled heated water",
@@ -294,8 +294,8 @@ export const FACILITIES: Facility[] = [
     image: "/images/gallery/spa-treatment.jpg",
     gallery: [
       "/images/gallery/spa-treatment.jpg",
-      "/images/gallery/meditation.jpg",
-      "/images/gallery/wellness-retreat.jpg",
+      "/images/gallery/meditation-room.jpg",
+      "/images/gallery/himalayan-sanctuary.jpg",
     ],
     highlights: [
       "Himalayan salt sauna & steam room",
@@ -346,11 +346,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "There is nothing quite like sinking into warm, gently churning water at the end of a long day. Our jacuzzi and hydrotherapy zone features heated soaking pools, targeted massage jets, and a serene poolside lounge built for unhurried unwinding. Perfect on its own or after a hard training session, it is our most popular way to finish a perfect day at the sanctuary.",
     icon: MdWaves,
-    image: "/images/gallery/bw.jpg",
+    image: "/images/gallery/poolside-calm.jpg",
     gallery: [
-      "/images/gallery/bw.jpg",
-      "/images/gallery/hero.jpg",
-      "/images/gallery/meditation.jpg",
+      "/images/gallery/poolside-calm.jpg",
+      "/images/gallery/spa-treatment.jpg",
+      "/images/gallery/himalayan-sanctuary.jpg",
     ],
     highlights: [
       "Heated hydrotherapy soaking pools",
@@ -404,8 +404,8 @@ export const FACILITIES: Facility[] = [
     image: "/images/gallery/spa-treatment.jpg",
     gallery: [
       "/images/gallery/spa-treatment.jpg",
-      "/images/gallery/wellness-retreat.jpg",
-      "/images/gallery/meditation.jpg",
+      "/images/gallery/meditation-room.jpg",
+      "/images/gallery/yoga-session.jpg",
     ],
     highlights: [
       "Hair styling, blowouts & finishing touches",

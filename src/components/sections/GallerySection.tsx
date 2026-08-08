@@ -27,16 +27,16 @@ type GalleryItem = {
   span: string;
 };
 
-// Bento grid: 4 columns on desktop, varied row/col spans create
-// a dense, layered mosaic layout on larger screens.
+// Bento grid items with flexible row/col spans for grid-flow-dense layout.
+// Even item counts per category: Wellness (4), Facilities (4), Cuisine (2), Outdoors (2).
 const galleryItems: GalleryItem[] = [
   {
     id: 1,
     title: "Himalayan Sanctuary",
     subtitle: "The lap of stillness, overlooking the valley",
     category: "Wellness",
-    image: "/images/gallery/hero.jpg",
-    span: "md:col-span-2 md:row-span-2",
+    image: "/images/gallery/himalayan-sanctuary.jpg",
+    span: "col-span-1 sm:col-span-2 row-span-2",
   },
   {
     id: 2,
@@ -44,7 +44,7 @@ const galleryItems: GalleryItem[] = [
     subtitle: "Guided flows for mind & body",
     category: "Wellness",
     image: "/images/gallery/yoga-session.jpg",
-    span: "md:col-span-1 md:row-span-1",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 3,
@@ -52,39 +52,39 @@ const galleryItems: GalleryItem[] = [
     subtitle: "Restorative rituals with Himalayan botanicals",
     category: "Wellness",
     image: "/images/gallery/spa-treatment.jpg",
-    span: "md:col-span-1 md:row-span-2",
+    span: "col-span-1 row-span-2",
   },
   {
     id: 4,
-    title: "Fitness Arena",
-    subtitle: "Cardio, strength & the boxing ring",
-    category: "Facilities",
-    image: "/images/gallery/qwe.jpg",
-    span: "md:col-span-2 md:row-span-1",
+    title: "Meditation Suite",
+    subtitle: "Find inner stillness with guided sessions",
+    category: "Wellness",
+    image: "/images/gallery/meditation-room.jpg",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 5,
-    title: "Open-Air Meditation",
-    subtitle: "Find balance under the open sky",
-    category: "Wellness",
-    image: "/images/gallery/meditation.jpg",
-    span: "md:col-span-1 md:row-span-1",
+    title: "Fitness Arena",
+    subtitle: "Cardio, strength & the boxing ring",
+    category: "Facilities",
+    image: "/images/gallery/fitness-arena.jpg",
+    span: "col-span-1 sm:col-span-2 row-span-1",
   },
   {
     id: 6,
-    title: "Zumba & Cardio",
-    subtitle: "High-energy sessions that keep you moving",
-    category: "Facilities",
-    image: "/images/gallery/zumba.jpg",
-    span: "md:col-span-1 md:row-span-1",
+    title: "Outdoor Terrace Lounge",
+    subtitle: "Sun-dappled terrace deck for relaxation",
+    category: "Outdoors",
+    image: "/images/gallery/wellness-retreat-real.jpg",
+    span: "col-span-1 sm:col-span-2 row-span-1",
   },
   {
     id: 7,
-    title: "Wellness Retreat",
-    subtitle: "Rejuvenative group escapes",
-    category: "Wellness",
-    image: "/images/gallery/wellness-retreat.jpg",
-    span: "md:col-span-2 md:row-span-1",
+    title: "Mountain Terrace Vistas",
+    subtitle: "Panoramic open-air terrace overlooking the valley",
+    category: "Outdoors",
+    image: "/images/gallery/outdoor-trail.jpg",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 8,
@@ -92,23 +92,39 @@ const galleryItems: GalleryItem[] = [
     subtitle: "Mindfully-sourced meals from our kitchen",
     category: "Cuisine",
     image: "/images/gallery/healthy-food.jpg",
-    span: "md:col-span-1 md:row-span-1",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 9,
-    title: "Outdoor Activities",
-    subtitle: "Trails, fresh air & gentle adventure",
-    category: "Outdoors",
-    image: "/images/gallery/outdoor-activity.jpg",
-    span: "md:col-span-2 md:row-span-1",
+    title: "Mindful Dining & Tea",
+    subtitle: "Nourishing artisanal teas and light bites",
+    category: "Cuisine",
+    image: "/images/gallery/mindful-dining.jpg",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 10,
+    title: "Zumba & Cardio",
+    subtitle: "High-energy sessions that keep you moving",
+    category: "Facilities",
+    image: "/images/gallery/zumba.jpg",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    id: 11,
     title: "Poolside Calm",
     subtitle: "Rest, reflection & warm water",
     category: "Facilities",
-    image: "/images/gallery/bw.jpg",
-    span: "md:col-span-1 md:row-span-2",
+    image: "/images/gallery/poolside-calm.jpg",
+    span: "col-span-1 sm:col-span-2 row-span-1",
+  },
+  {
+    id: 12,
+    title: "Hydrotherapy & Steam",
+    subtitle: "Deep heat recovery and water therapy",
+    category: "Facilities",
+    image: "/images/gallery/hero.jpg",
+    span: "col-span-1 sm:col-span-2 row-span-1",
   },
 ];
 
@@ -174,10 +190,10 @@ export function GallerySection() {
           </InView>
         </InView>
 
-        {/* Bento grid: 4 columns on desktop, 2 on tablet, 1 on mobile */}
+        {/* Bento grid container with auto-row height and dense packing */}
         <motion.div
           layout
-          className="grid grid-cols-1 md:grid-cols-4 auto-rows-[220px] md:auto-rows-[190px] gap-4 md:gap-5"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[220px] sm:auto-rows-[250px] gap-4 grid-flow-dense"
         >
           <AnimatePresence mode="popLayout">
             {visibleItems.map((item, index) => (
@@ -185,6 +201,7 @@ export function GallerySection() {
                 key={item.id}
                 item={item}
                 index={index}
+                isFiltered={filter !== "All"}
                 onOpen={() => openLightbox(item, index)}
               />
             ))}
@@ -263,21 +280,25 @@ function categoryTone(category: Category) {
 function GalleryCard({
   item,
   index,
+  isFiltered,
   onOpen,
 }: {
   item: GalleryItem;
   index: number;
+  isFiltered: boolean;
   onOpen: () => void;
 }) {
+  const cardSpan = isFiltered ? "col-span-1 row-span-1" : item.span;
+
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.94, y: 30 }}
+      initial={{ opacity: 0, scale: 0.94, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.94, y: 20 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
+      exit={{ opacity: 0, scale: 0.94, y: 15 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: index * 0.04 }}
       whileHover={{ scale: 0.985 }}
-      className={`group relative overflow-hidden rounded-3xl cursor-pointer ${item.span}`}
+      className={`group relative overflow-hidden rounded-2xl cursor-pointer border border-[#fdd693]/10 hover:border-[#fdd693]/40 transition-colors duration-500 min-h-[220px] ${cardSpan}`}
       onClick={onOpen}
       role="button"
       tabIndex={0}
@@ -294,38 +315,32 @@ function GalleryCard({
         alt={item.title}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-        className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+        className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
       />
 
-      {/* Base vignette so the grid reads well even without hovering */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/0 opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
+      {/* Base gradient overlay for constant legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10 opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
 
-      {/* Animated gold ring on hover */}
-      <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/0 group-hover:ring-[#fdd693]/40 transition-all duration-500" />
-
-      {/* Corner zoom affordance */}
-      <div className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white transition-all duration-500 group-hover:bg-[#fdd693] group-hover:text-[#0a4243] group-hover:border-[#fdd693]">
-        <HiOutlineZoomIn className="h-5 w-5" />
+      {/* Corner zoom button */}
+      <div className="absolute top-3.5 right-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white transition-all duration-300 group-hover:bg-[#fdd693] group-hover:text-[#0a4243] group-hover:border-[#fdd693] z-10">
+        <HiOutlineZoomIn className="h-4 w-4" />
       </div>
 
       {/* Category badge */}
       <span
-        className={`absolute top-4 left-4 rounded-full border px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/30 opacity-0 -translate-x-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 ${categoryTone(
+        className={`absolute top-3.5 left-3.5 rounded-full border px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.18em] backdrop-blur-md bg-black/40 ${categoryTone(
           item.category
         )}`}
       >
         {item.category}
       </span>
 
-      {/* Caption — slides up on hover */}
-      <div className="absolute left-5 right-5 bottom-5 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-        <span className="mb-1 block text-[0.65rem] uppercase tracking-[0.25em] text-[#fdd693]/90">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <h3 className="text-white text-lg md:text-xl font-bold drop-shadow-md leading-snug">
+      {/* Caption at bottom */}
+      <div className="absolute left-4 right-4 bottom-4 z-10 transition-transform duration-300 ease-out group-hover:-translate-y-1">
+        <h3 className="text-white text-base md:text-lg font-bold drop-shadow-md leading-snug">
           {item.title}
         </h3>
-        <p className="mt-0.5 text-sm text-white/70 truncate">{item.subtitle}</p>
+        <p className="mt-0.5 text-xs md:text-sm text-slate-300 line-clamp-1">{item.subtitle}</p>
       </div>
     </motion.div>
   );

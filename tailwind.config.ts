@@ -73,6 +73,15 @@ const config: Config = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
   ],
+  safelist: [
+    // Gallery bento grid explicit placement classes
+    'md:col-start-1', 'md:col-start-2', 'md:col-start-3', 'md:col-start-4',
+    'md:col-span-1', 'md:col-span-2', 'md:col-span-3', 'md:col-span-4',
+    'md:row-start-1', 'md:row-start-2', 'md:row-start-3', 'md:row-start-4', 'md:row-start-5',
+    'md:row-span-1', 'md:row-span-2',
+    'md:grid-rows-5',
+    'col-span-2', 'row-span-2',
+  ],
 };
 
 export default config;

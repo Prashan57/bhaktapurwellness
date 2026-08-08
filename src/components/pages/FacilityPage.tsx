@@ -258,29 +258,20 @@ export function FacilityPage({ facility }: { facility: Facility }) {
             </Link>
           </InView>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {facility.gallery.map((image, i) => (
-              <InView
-                key={image}
-                delay={i * 100}
-                className={i === 0 ? "md:row-span-2" : ""}
-              >
-                <div
-                  className={`group relative overflow-hidden rounded-3xl border border-[#fdd693]/10 ${
-                    i === 0 ? "h-72 md:h-full md:min-h-[480px]" : "h-72"
-                  }`}
-                >
+              <InView key={image} delay={i * 100} className="h-full">
+                <div className="group relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-[#fdd693]/15 bg-[#041a1b]">
                   <Image
                     src={image}
                     alt={`${facility.name} — view ${i + 1}`}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
-                  <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/0 group-hover:ring-[#fdd693]/40 transition-all duration-500" />
-                  <span className="absolute bottom-4 left-4 text-[0.65rem] uppercase tracking-[0.25em] text-[#fdd693]/90">
-                    {String(i + 1).padStart(2, "0")}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-95" />
+                  <span className="absolute bottom-4 left-4 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-[#fdd693]">
+                    {String(i + 1).padStart(2, "0")} — {facility.shortName}
                   </span>
                 </div>
               </InView>

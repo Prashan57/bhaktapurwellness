@@ -26,7 +26,7 @@ export const SITE = {
   // Default images inside public/
   logo: "/images/gallery/bw.jpg",
   logoCircle: "/images/gallery/bw.jpg",
-  favicon: "/favicon.ico",
+  favicon: "/icon.svg",
 };
 
 export const SEO = {

@@ -7,16 +7,16 @@ const HERO_IMAGES = [
   {
     id: "retreat",
     title: "Wellness Sanctuary",
-    src: "/images/gallery/wellness-retreat.jpg",
+    src: "/images/gallery/himalayan-sanctuary.jpg",
     heading: "Find Your",
     accent: "Sanctuary",
     description:
-      "A minimalist Nordic wellness retreat where expansive glass, natural serenity, and thoughtful design quiet the noise of everyday life.",
+      "A tranquil Himalayan wellness sanctuary where natural serenity, thoughtful design and expert care quiet the noise of everyday life.",
   },
   {
     id: "meditation",
     title: "Meditation & Sauna",
-    src: "/images/gallery/meditation.jpg",
+    src: "/images/gallery/meditation-room.jpg",
     heading: "Stillness &",
     accent: "Steam",
     description:
@@ -24,21 +24,21 @@ const HERO_IMAGES = [
   },
   {
     id: "hero",
-    title: "Aquatic & Pool",
-    src: "/images/gallery/hero.jpg",
-    heading: "Dive Into",
-    accent: "Serenity",
+    title: "Fitness & Strength",
+    src: "/images/gallery/fitness-arena.jpg",
+    heading: "Train &",
+    accent: "Excel",
     description:
-      "Float in our heated indoor pool and hydrotherapy zones, where warm water and quiet light wash the day away.",
+      "State-of-the-art fitness arena with cardio zones, strength equipment, and the boxing ring — built for champions.",
   },
   {
     id: "outdoor",
     title: "Outdoor Vitality",
-    src: "/images/gallery/outdoor-activity.jpg",
+    src: "/images/gallery/outdoor-trail.jpg",
     heading: "Move With",
     accent: "Nature",
     description:
-      "Open-air yoga, strength training, and sunrise movement sessions reconnect your body with the rhythm of the valley.",
+      "Open-air yoga, guided treks, and sunrise movement sessions reconnect your body with the rhythm of the Himalayan valley.",
   },
   {
     id: "spa",
