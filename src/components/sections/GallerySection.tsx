@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { InView } from "@/components/motion/InView";
 import { Eyebrow, GradientText } from "@/components/ui/SectionHeader";
 import { Modal } from "@/components/ui/Modal";
 import { StateBlock } from "@/components/ui/StateBlock";
 import { CONFIRM_COPY, SECTION_COPY } from "@/constants/copy";
-import { motion, AnimatePresence } from "framer-motion";
+import { gsap, gsapSetup, isReducedMotion } from "@/lib/gsap";
 import Image from "next/image";
 import { MdPhotoLibrary } from "react-icons/md";
 import { HiOutlineZoomIn } from "react-icons/hi";
@@ -35,17 +35,45 @@ const galleryItems: GalleryItem[] = [
   { id: 8, title: "Organic Cuisine", subtitle: "Mindfully-sourced kitchen", category: "Cuisine", image: "/images/gallery/healthy-food.jpg", span: "md:col-span-1 md:row-span-1" },
   { id: 9, title: "Outdoor Activities", subtitle: "Trails, air & gentle adventure", category: "Outdoors", image: "/images/gallery/outdoor-activity.jpg", span: "md:col-span-1 md:row-span-1" },
   { id: 10, title: "Poolside Calm", subtitle: "Warm water & reflection", category: "Facilities", image: "/images/gallery/bw.jpg", span: "md:col-span-1 md:row-span-1" },
+  { id: 11, title: "Boxing Corner", subtitle: "Gloves on, world off", category: "Facilities", image: "/images/web/boxing-ring.jpg", span: "md:col-span-1 md:row-span-1" },
+  { id: 12, title: "Salt & Steam", subtitle: "Himalayan heat rituals", category: "Wellness", image: "/images/web/sauna-steam.jpg", span: "md:col-span-1 md:row-span-1" },
 ];
 
 export function GallerySection() {
   const [filter, setFilter] = useState<Category | "All">("All");
   const [active, setActive] = useState<GalleryItem | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const visibleItems = useMemo(
     () => (filter === "All" ? galleryItems : galleryItems.filter((i) => i.category === filter)),
     [filter],
   );
+
+  // Minimal GSAP touch: soft stagger when the filter changes.
+  // Transform/opacity only, skipped for reduced motion.
+  useEffect(() => {
+    if (isReducedMotion()) return;
+    const grid = gridRef.current;
+    if (!grid) return;
+    gsapSetup();
+    const cards = grid.querySelectorAll(":scope > button");
+    if (!cards.length) return;
+    gsap.fromTo(
+      cards,
+      { opacity: 0, y: 18, scale: 0.98 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.45,
+        ease: "power3.out",
+        stagger: { each: 0.04, from: "start" },
+        overwrite: "auto",
+        clearProps: "transform",
+      },
+    );
+  }, [filter]);
 
   const openLightbox = (item: GalleryItem, index: number) => {
     setActive(item);
@@ -95,18 +123,13 @@ export function GallerySection() {
                   type="button"
                   onClick={() => setFilter(category)}
                   aria-pressed={isActive}
-                  className={`relative rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693] ${
-                    isActive ? "text-[#0a4243]" : "border border-[#fdd693]/20 text-slate-300 hover:border-[#fdd693]/50 hover:text-white"
+                  className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693] ${
+                    isActive
+                      ? "bg-[#fdd693] text-[#0a4243] shadow-lg shadow-[#fdd693]/30 scale-100"
+                      : "border border-[#fdd693]/20 text-slate-300 hover:border-[#fdd693]/50 hover:text-white"
                   }`}
                 >
-                  {isActive && (
-                    <motion.span
-                      layoutId="gallery-tab-pill"
-                      className="absolute inset-0 rounded-full bg-[#fdd693] shadow-lg shadow-[#fdd693]/30"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <span className="relative z-10">{category}</span>
+                  {category}
                 </button>
               );
             })}
@@ -116,13 +139,11 @@ export function GallerySection() {
         {visibleItems.length === 0 ? (
           <StateBlock title="No photos here yet" body="Try another category to keep exploring." />
         ) : (
-          <motion.div layout className="grid auto-rows-[220px] grid-cols-1 gap-4 md:auto-rows-[190px] md:grid-cols-4 md:gap-5">
-            <AnimatePresence mode="popLayout">
-              {visibleItems.map((item, index) => (
-                <GalleryCard key={item.id} item={item} index={index} onOpen={() => openLightbox(item, index)} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div ref={gridRef} className="grid auto-rows-[220px] grid-cols-1 gap-4 md:auto-rows-[190px] md:grid-cols-4 md:gap-5">
+            {visibleItems.map((item, index) => (
+              <GalleryCard key={item.id} item={item} index={index} onOpen={() => openLightbox(item, index)} />
+            ))}
+          </div>
         )}
         <p aria-live="polite" className="sr-only">
           Showing {visibleItems.length} photos{filter !== "All" ? ` in ${filter}` : ""}.
@@ -153,13 +174,8 @@ function categoryTone(category: Category) {
 
 function GalleryCard({ item, index, onOpen }: { item: GalleryItem; index: number; onOpen: () => void }) {
   return (
-    <motion.button
-      layout
+    <button
       type="button"
-      initial={{ opacity: 0, scale: 0.96, y: 24 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: 16 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: Math.min(index * 0.04, 0.24) }}
       className={`group relative overflow-hidden rounded-3xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693] ${item.span}`}
       onClick={onOpen}
       aria-label={`View ${item.title} — ${item.subtitle}`}
@@ -192,19 +208,16 @@ function GalleryCard({ item, index, onOpen }: { item: GalleryItem; index: number
         </span>
         <span className="mt-0.5 block truncate text-sm text-white/70">{item.subtitle}</span>
       </span>
-    </motion.button>
+    </button>
   );
 }
 
 function LightboxContent({ item, onPrev, onNext }: { item: GalleryItem; onPrev: () => void; onNext: () => void }) {
   return (
     <div className="space-y-5">
-      <motion.div
+      <div
         key={item.id}
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#fdd693]/15 bg-[#041f1f] sm:aspect-[16/10]"
+        className="animate-scale-in relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[#fdd693]/15 bg-[#041f1f] sm:aspect-[16/10]"
       >
         <Image src={item.image} alt={item.title} fill sizes="(max-width: 768px) 90vw, 900px" className="object-cover" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" aria-hidden="true" />
@@ -213,7 +226,7 @@ function LightboxContent({ item, onPrev, onNext }: { item: GalleryItem; onPrev: 
           <h3 className="text-xl font-extrabold text-white sm:text-2xl">{item.title}</h3>
           <p className="mt-1 text-sm text-white/75">{item.subtitle}</p>
         </div>
-      </motion.div>
+      </div>
 
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.category} collection</span>

@@ -57,7 +57,11 @@ export const WELLNESS_PILLARS: WellnessPillar[] = [
     description:
       "Equipped with premium resistance machines, free weight zones, cardio suites, and certified personal trainers for every fitness level.",
     image: "/images/gallery/zumba.jpg",
-    highlights: ["Biometric Tracking", "Custom Training Plans", "Cardio & Heavy Lift Zones"],
+    highlights: [
+      "Biometric Tracking",
+      "Custom Training Plans",
+      "Cardio & Heavy Lift Zones",
+    ],
   },
   {
     id: "boxing",
@@ -68,7 +72,11 @@ export const WELLNESS_PILLARS: WellnessPillar[] = [
     description:
       "Full-size sparring ring, heavy bags, speed bags, and tactical boxing programs led by seasoned martial arts coaches.",
     image: "/images/gallery/qwe.jpg",
-    highlights: ["Regulation Ring", "Heavy Bag Alley", "Personal Sparring Sessions"],
+    highlights: [
+      "Regulation Ring",
+      "Heavy Bag Alley",
+      "Personal Sparring Sessions",
+    ],
   },
   {
     id: "pool",
@@ -79,7 +87,11 @@ export const WELLNESS_PILLARS: WellnessPillar[] = [
     description:
       "Temperature-controlled lap pool featuring dedicated swim lanes, aqua-aerobics sessions, and poolside lounge comfort.",
     image: "/images/gallery/outdoor-activity.jpg",
-    highlights: ["Year-Round Heated Water", "Swim Coaching", "Sun Loungers & Deck"],
+    highlights: [
+      "Year-Round Heated Water",
+      "Swim Coaching",
+      "Sun Loungers & Deck",
+    ],
   },
   {
     id: "spa",
@@ -90,7 +102,11 @@ export const WELLNESS_PILLARS: WellnessPillar[] = [
     description:
       "Traditional Himalayan herbal steam, infrared sauna, deep tissue therapy, and serene treatment suites for complete renewal.",
     image: "/images/gallery/spa-treatment.jpg",
-    highlights: ["Infrared & Herbal Steam", "Therapeutic Massage", "Private Recovery Rooms"],
+    highlights: [
+      "Infrared & Herbal Steam",
+      "Therapeutic Massage",
+      "Private Recovery Rooms",
+    ],
   },
   {
     id: "restaurant",
@@ -101,7 +117,11 @@ export const WELLNESS_PILLARS: WellnessPillar[] = [
     description:
       "Chef-crafted farm-to-table menus, fresh cold-pressed juices, protein smoothie bar, and wholesome gourmet meals tailored to your goals.",
     image: "/images/gallery/healthy-food.jpg",
-    highlights: ["Farm-to-Table Fresh", "Custom Meal Prep Options", "Cold-Pressed Juices"],
+    highlights: [
+      "Farm-to-Table Fresh",
+      "Custom Meal Prep Options",
+      "Cold-Pressed Juices",
+    ],
   },
 ];
 
@@ -111,8 +131,12 @@ export const LOGOS = {
 };
 
 export const CONTACT = {
-  email: "support@bhaktapurwellness.com",
-  phone: "(+977) 980-0000000",
+  email: "Wellnessbhaktapur@gmail.com",
+  phones: [
+    { label: "015925203", href: "tel:+97715925203" },
+    { label: "9851007207", href: "tel:+9779851007207" },
+    { label: "+977 9767653780", href: "tel:+9779767653780" },
+  ],
   hours: "Mon–Sun: 6:00 AM – 10:00 PM",
   address: "Bhaktapur, Nepal",
 };
@@ -138,4 +162,3 @@ export default {
   SOCIALS,
   THEME,
 };
-

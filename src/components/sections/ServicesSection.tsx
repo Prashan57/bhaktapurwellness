@@ -1,26 +1,41 @@
 "use client";
 
-import { useState } from "react";
 import { InView } from "@/components/motion/InView";
-import { Eyebrow, GradientText, SectionHeader } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
-import CardFlipSection from "./CardFlipSection";
-import { MatterportSection } from "./MatterportSection";
 import { Modal } from "@/components/ui/Modal";
+import {
+  Eyebrow,
+  GradientText,
+  SectionHeader,
+} from "@/components/ui/SectionHeader";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { COMMON_COPY, SECTION_COPY } from "@/constants/copy";
-import {
-  FaArrowRight,
-  FaDumbbell,
-  FaSwimmer,
-  FaUtensils,
-} from "react-icons/fa";
-import { GiBoxingGlove, GiLotus } from "react-icons/gi";
-import { MdSpa } from "react-icons/md";
+import { goToSectionDelayed } from "@/lib/scroll";
+import Image from "next/image";
+import { useState, type MouseEvent } from "react";
+import { FaArrowRight } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
-import { HiMiniScissors } from "react-icons/hi2";
+import { GiLotus } from "react-icons/gi";
+import CardFlipSection from "./CardFlipSection";
+import { LazyMatterportSection } from "./lazy";
 
-const FACILITIES = [
+/**
+ * Homepage facility card. `tag` is required — a missing tag fails the
+ * build instead of silently rendering an empty badge.
+ */
+type ServiceFacility = {
+  id: string;
+  name: string;
+  tag: string;
+  description: string;
+  highlights: string[];
+  featured: boolean;
+  href: string;
+  image: string;
+  pricingHint?: string;
+};
+
+const FACILITIES: ServiceFacility[] = [
   {
     id: "gym",
     name: "High-Performance Gym",
@@ -32,9 +47,9 @@ const FACILITIES = [
       "Certified trainers on the floor",
       "Dedicated functional & HIIT zone",
     ],
-    icon: FaDumbbell,
     featured: true,
     href: "/facilities/gym",
+    image: "/images/web/gym-floor.jpg",
     pricingHint: "Locker from NRs. 600 · full plans on the gym page",
   },
   {
@@ -48,9 +63,9 @@ const FACILITIES = [
       "Heavy bags & striking stations",
       "Beginner to pro coaching",
     ],
-    icon: GiBoxingGlove,
     featured: false,
     href: "/facilities/boxing",
+    image: "/images/web/boxing-ring.jpg",
     pricingHint: "Kickboxing from NRs. 6,000 · full plans on the studio page",
   },
   {
@@ -64,9 +79,9 @@ const FACILITIES = [
       "Beginner-friendly progressions",
       "Cardio & flexibility",
     ],
-    icon: GiLotus,
     featured: false,
     href: "/facilities/dance",
+    image: "/images/web/dance-studio.jpg",
     pricingHint: "Dance from NRs. 3,000 · full plans on the studio page",
   },
   {
@@ -80,10 +95,11 @@ const FACILITIES = [
       "Soothing jacuzzi zone",
       "Locker room & towel service",
     ],
-    icon: FaSwimmer,
     featured: false,
     href: "/facilities/pool",
-    pricingHint: "NRs. 1,000 per session · 7 AM – 11 AM / 1 PM – 4 PM / 5 PM – 9 PM",
+    image: "/images/web/pool-lanes.jpg",
+    pricingHint:
+      "NRs. 1,000 per session · 7 AM – 11 AM / 1 PM – 4 PM / 5 PM – 9 PM",
   },
   {
     id: "spa",
@@ -96,10 +112,11 @@ const FACILITIES = [
       "Signature massage rituals",
       "Serene recovery lounge",
     ],
-    icon: MdSpa,
     featured: false,
     href: "/facilities/spa",
-    pricingHint: "NRs. 1,000 per session · 7 AM – 11 AM / 1 PM – 4 PM / 5 PM – 9 PM",
+    image: "/images/web/spa-ritual.jpg",
+    pricingHint:
+      "NRs. 1,000 per session · 7 AM – 11 AM / 1 PM – 4 PM / 5 PM – 9 PM",
   },
   {
     id: "beauty-salon",
@@ -112,9 +129,9 @@ const FACILITIES = [
       "Skincare treatments",
       "Premium, relaxed experience",
     ],
-    icon: HiMiniScissors,
     featured: false,
     href: "/facilities/beauty-salon",
+    image: "/images/web/salon-chair.jpg",
   },
   {
     id: "restaurant",
@@ -127,9 +144,9 @@ const FACILITIES = [
       "Post-workout juice bar",
       "Relaxed al-fresco dining",
     ],
-    icon: FaUtensils,
     featured: false,
     href: "/facilities/restaurant",
+    image: "/images/web/restaurant-plate.jpg",
   },
 ];
 
@@ -137,11 +154,29 @@ export function ServicesSection() {
   const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
   const activeFacility = FACILITIES.find((f) => f.id === selectedFacility);
 
+  // Modal links can't scroll directly — the page is scroll-locked while
+  // the dialog is mounted. Close first, then land on the section.
+  const goContact = (e: MouseEvent) => {
+    e.preventDefault();
+    setSelectedFacility(null);
+    goToSectionDelayed("#contact");
+  };
+
   return (
-    <section id="services" aria-labelledby="services-heading" className="section section-raised">
+    <section
+      id="services"
+      aria-labelledby="services-heading"
+      className="section section-raised"
+    >
       <div id="facilities" className="scroll-mt-24" />
-      <div aria-hidden="true" className="ambient-glow -left-24 top-1/4 h-72 w-72 bg-[#fdd693]/10 blur-[100px]" />
-      <div aria-hidden="true" className="ambient-glow -right-16 bottom-10 h-72 w-72 bg-[#0a4243]/50 blur-[100px]" />
+      <div
+        aria-hidden="true"
+        className="ambient-glow -left-24 top-1/4 h-72 w-72 bg-[#fdd693]/10 blur-[100px]"
+      />
+      <div
+        aria-hidden="true"
+        className="ambient-glow -right-16 bottom-10 h-72 w-72 bg-[#0a4243]/50 blur-[100px]"
+      />
 
       <div className="container relative z-10">
         <SectionHeader
@@ -152,15 +187,18 @@ export function ServicesSection() {
           }
           title={
             <span id="services-heading">
-              {SECTION_COPY.servicesTitleA} <GradientText>{SECTION_COPY.servicesTitleB}</GradientText>
+              {SECTION_COPY.servicesTitleA}{" "}
+              <GradientText>{SECTION_COPY.servicesTitleB}</GradientText>
             </span>
           }
           intro={SECTION_COPY.servicesIntro}
         />
 
-        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3" aria-label="Facilities">
+        <ul
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3"
+          aria-label="Facilities"
+        >
           {FACILITIES.map((facility, i) => {
-            const Icon = facility.icon;
             const selected = selectedFacility === facility.id;
             return (
               <li key={facility.id} className="h-full">
@@ -179,50 +217,57 @@ export function ServicesSection() {
                             : "border border-[#fdd693]/15"
                       }`}
                     >
-                      <span className="mb-5 flex items-center gap-4">
+                      <span className="relative -m-7 mb-6 block h-44 overflow-hidden sm:-m-8 sm:h-48">
+                        <Image
+                          src={facility.image}
+                          alt={`${facility.name} — ${facility.tag}`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          loading="lazy"
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
                         <span
-                          className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-105 ${
-                            facility.featured
-                              ? "border-[#fdd693] bg-gradient-to-br from-[#fdd693] to-[#f3be6a] text-[#0a4243]"
-                              : "border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693]"
-                          }`}
-                        >
-                          <Icon aria-hidden="true" className="h-6 w-6" />
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-gradient-to-t from-[#062324] via-[#062324]/25 to-transparent"
+                        />
+                        <span className="absolute bottom-3 left-4 rounded-full border border-[#fdd693]/40 bg-black/70 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-[#fdd693] shadow-lg shadow-black/40 backdrop-blur-md">
+                          {facility.tag}
                         </span>
-                        <span className="flex-1">
-                          <span className="block text-lg font-extrabold tracking-tight text-white">
-                            {facility.name}
-                          </span>
-                          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#fdd693]/80">
-                            {facility.tag}
-                          </span>
-                        </span>
+                      </span>
+                      <span className="mb-1 block text-lg font-extrabold tracking-tight text-white">
+                        {facility.name}
                       </span>
 
                       <span className="mb-5 block flex-1 text-sm leading-relaxed text-slate-300">
                         {facility.description}
                       </span>
-
                       <span className="mb-6 block space-y-2.5">
                         {facility.highlights.map((hl) => (
-                          <span key={hl} className="flex items-start gap-2.5 text-sm text-slate-200">
+                          <span
+                            key={hl}
+                            className="flex items-start gap-2.5 text-sm text-slate-200"
+                          >
                             <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#fdd693]/25 bg-[#fdd693]/15 text-[#fdd693]">
-                              <FiCheck aria-hidden="true" className="h-2.5 w-2.5" />
+                              <FiCheck
+                                aria-hidden="true"
+                                className="h-2.5 w-2.5"
+                              />
                             </span>
                             <span className="leading-relaxed">{hl}</span>
                           </span>
                         ))}
                       </span>
-
-                      {"pricingHint" in facility && facility.pricingHint ? (
+                      {facility.pricingHint ? (
                         <span className="mb-5 block rounded-xl border border-[#fdd693]/20 bg-[#041a1b]/70 px-4 py-2.5 text-xs font-semibold tabular-nums text-[#fdd693]">
-                          {facility.pricingHint as string}
+                          {facility.pricingHint}
                         </span>
                       ) : null}
-
                       <span className="inline-flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693]">
                         {COMMON_COPY.exploreSpace}
-                        <FaArrowRight aria-hidden="true" className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+                        <FaArrowRight
+                          aria-hidden="true"
+                          className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1"
+                        />
                       </span>
                     </button>
                   </TiltCard>
@@ -237,7 +282,7 @@ export function ServicesSection() {
         </div>
 
         <div className="mt-16">
-          <MatterportSection />
+          <LazyMatterportSection />
         </div>
       </div>
 
@@ -252,9 +297,9 @@ export function ServicesSection() {
             <p className="text-sm leading-relaxed text-slate-300 sm:text-base">
               {activeFacility.description}
             </p>
-            {"pricingHint" in activeFacility && activeFacility.pricingHint ? (
+            {activeFacility.pricingHint ? (
               <p className="rounded-xl border border-[#fdd693]/20 bg-[#041a1b]/70 px-4 py-3 text-xs font-semibold tabular-nums text-[#fdd693]">
-                {activeFacility.pricingHint as string}
+                {activeFacility.pricingHint}
               </p>
             ) : null}
             <div className="rounded-2xl border border-[#fdd693]/15 bg-[#041a1b]/90 p-5">
@@ -277,12 +322,17 @@ export function ServicesSection() {
                 Full plans live on the {activeFacility.name} page.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                {"href" in activeFacility && activeFacility.href ? (
-                  <Button href={activeFacility.href as string} size="sm" variant="outline" onClick={() => setSelectedFacility(null)}>
+                {activeFacility.href ? (
+                  <Button
+                    href={activeFacility.href}
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedFacility(null)}
+                  >
                     View Pricing
                   </Button>
                 ) : null}
-                <Button href="#contact" size="sm" onClick={() => setSelectedFacility(null)}>
+                <Button href="#contact" size="sm" onClick={goContact}>
                   Visit This Facility
                 </Button>
               </div>

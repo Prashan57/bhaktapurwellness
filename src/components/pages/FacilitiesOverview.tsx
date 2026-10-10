@@ -79,7 +79,7 @@ export function FacilitiesOverview() {
                           alt=""
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                          loading={i < 3 ? "eager" : "lazy"}
+                          loading="lazy"
                           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         />
                         <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#062324] via-[#062324]/15 to-transparent" />
@@ -88,14 +88,11 @@ export function FacilitiesOverview() {
                         </span>
                       </span>
 
-                      <span className="relative z-10 -mt-10 block flex-1 p-7 pt-0">
-                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693] shadow-lg shadow-black/30 transition-transform duration-300 group-hover:scale-105">
-                          <facility.icon aria-hidden="true" className="h-6 w-6" />
-                        </span>
-                        <span className="mt-4 block text-xl font-extrabold tracking-tight text-white">
+                      <span className="block flex-1 p-6 sm:p-7">
+                        <span className="block text-xl font-extrabold tracking-tight text-white">
                           {facility.name}
                         </span>
-                        <span className="mt-2 block text-sm leading-relaxed text-slate-300">
+                        <span className="mt-4 block text-sm leading-relaxed text-slate-300">
                           {facility.description}
                         </span>
                         <span className="mt-5 inline-flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693]">

@@ -14,7 +14,7 @@ export const MOTION = {
     out: "cubic-bezier(0.16, 1, 0.3, 1)",
     inOut: "cubic-bezier(0.65, 0, 0.35, 1)",
   },
-  // Shared framer-motion / CSS presets
+  // Shared GSAP / CSS presets
   presets: {
     fadeSlideUp: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
     scaleIn: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const },

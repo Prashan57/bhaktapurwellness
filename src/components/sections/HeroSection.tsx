@@ -1,5 +1,6 @@
 "use client";
 
+import { gsap, gsapSetup, isReducedMotion } from "@/lib/gsap";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -56,9 +57,9 @@ const HERO_IMAGES = [
 const SLIDE_DURATION = 6500;
 
 const TRUST_POINTS = [
-  { value: "7", label: "Signature facilities" },
-  { value: "6–22", label: "Open daily, 6 AM – 10 PM" },
-  { value: "1:1", label: "Certified coaching" },
+  { value: 7, label: "Signature facilities" },
+  { value: "7 Days", label: "Open all week · 6 AM – 10 PM" },
+  { value: "1-on-1", label: "Certified personal coaching" },
 ];
 
 export function HeroSection() {
@@ -66,6 +67,8 @@ export function HeroSection() {
   const [isPaused, setIsPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const active = HERO_IMAGES[activeImageIndex];
 
   useEffect(() => {
@@ -78,19 +81,74 @@ export function HeroSection() {
 
   useEffect(() => {
     if (isPaused || reducedMotion) return;
-    timerRef.current = setInterval(() => {
-      setActiveImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, SLIDE_DURATION);
+    // Pause the carousel when the tab is hidden — saves CPU/battery.
+    const start = () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (document.hidden) return;
+      timerRef.current = setInterval(() => {
+        setActiveImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+      }, SLIDE_DURATION);
+    };
+    start();
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (timerRef.current) clearInterval(timerRef.current);
+      } else start();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isPaused, reducedMotion]);
+
+  // Minimal GSAP touch: one entrance timeline + gentle scroll parallax.
+  // Both skipped on reduced motion and coarse pointers stay static.
+  useEffect(() => {
+    if (isReducedMotion()) return;
+    gsapSetup();
+    const content = contentRef.current;
+    if (content) {
+      gsap.fromTo(
+        content.querySelectorAll("[data-hero-stagger]"),
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          stagger: 0.09,
+          overwrite: "auto",
+          clearProps: "transform",
+        },
+      );
+    }
+    const section = sectionRef.current;
+    if (section && content && window.matchMedia("(pointer: fine)").matches) {
+      const tween = gsap.to(content, {
+        yPercent: 8,
+        opacity: 0.55,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.6,
+        },
+      });
+      return () => {
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    }
+  }, []);
 
   const goTo = useCallback((idx: number) => setActiveImageIndex(idx), []);
 
   return (
     <section
       id="home"
+      ref={sectionRef}
       aria-roledescription="carousel"
       aria-label="Bhaktapur Wellness highlights"
       className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#0a4243] text-white"
@@ -99,7 +157,9 @@ export function HeroSection() {
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
     >
-      {/* Backdrop carousel — opacity crossfade only (GPU-cheap) */}
+      {/* Backdrop carousel — opacity crossfade only (GPU-cheap).
+          Inactive slides are visibility-hidden so the browser skips
+          painting them entirely. */}
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         {HERO_IMAGES.map((item, idx) => {
           const isActive = idx === activeImageIndex;
@@ -107,12 +167,15 @@ export function HeroSection() {
             <div
               key={item.id}
               className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-                isActive ? "opacity-100" : "opacity-0"
+                isActive ? "visible opacity-100" : "invisible opacity-0"
               }`}
             >
               <div
                 className={`absolute inset-0 ${reducedMotion ? "" : "animate-[heroKenburns_7s_ease-out_forwards]"}`}
-                style={{ animationPlayState: isActive && !isPaused ? "running" : "paused" }}
+                style={{
+                  animationPlayState:
+                    isActive && !isPaused ? "running" : "paused",
+                }}
               >
                 <Image
                   src={item.src}
@@ -120,6 +183,9 @@ export function HeroSection() {
                   fill
                   priority={idx === 0}
                   loading={idx === 0 ? "eager" : "lazy"}
+                  fetchPriority={idx === 0 ? "high" : "low"}
+                  decoding="async"
+                  quality={72}
                   sizes="100vw"
                   className="object-cover"
                 />
@@ -132,9 +198,18 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="container relative z-20 flex flex-1 flex-col justify-end pb-10 pt-32 md:justify-center md:pb-16 md:pt-36">
-        <p className="mb-5 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/20 bg-black/35 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.28em] text-[#fdd693] backdrop-blur-md">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#fdd693]" />
+      <div
+        ref={contentRef}
+        className="container relative z-20 flex flex-1 flex-col justify-end pb-10 pt-32 md:justify-center md:pb-16 md:pt-36"
+      >
+        <p
+          data-hero-stagger
+          className="mb-5 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/20 bg-black/35 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.28em] text-[#fdd693] backdrop-blur-md"
+        >
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-[#fdd693]"
+          />
           Bhaktapur · Nepal
         </p>
 
@@ -167,13 +242,19 @@ export function HeroSection() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div
+          data-hero-stagger
+          className="mt-8 flex flex-wrap items-center gap-3"
+        >
           <Link
             href="#contact"
             className="group inline-flex items-center gap-2 rounded-full bg-[#fdd693] px-7 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-[#0a4243] shadow-lg shadow-black/25 transition-all duration-300 hover:bg-[#fff0d0] sm:text-sm"
           >
             Book Your Visit
-            <FaArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            <FaArrowRight
+              aria-hidden="true"
+              className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+            />
           </Link>
           <Link
             href="#facilities"
@@ -183,7 +264,10 @@ export function HeroSection() {
           </Link>
         </div>
 
-        <dl className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-white/15 pt-6">
+        <dl
+          data-hero-stagger
+          className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-white/15 pt-6"
+        >
           {TRUST_POINTS.map((point) => (
             <div key={point.label} className="flex flex-col">
               <dd className="order-1 text-xl font-extrabold text-[#fdd693] sm:text-2xl">
@@ -200,7 +284,11 @@ export function HeroSection() {
       {/* Carousel controls */}
       <div className="absolute inset-x-0 bottom-0 z-20 hidden md:block">
         <div className="container flex items-center justify-between gap-6 pb-8">
-          <div className="flex items-center gap-2" role="tablist" aria-label="Choose highlight">
+          <div
+            className="flex items-center gap-2"
+            role="tablist"
+            aria-label="Choose highlight"
+          >
             {HERO_IMAGES.map((item, idx) => (
               <button
                 key={item.id}
@@ -218,8 +306,12 @@ export function HeroSection() {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            <span aria-hidden="true" className="text-xs tabular-nums text-white/60">
-              {String(activeImageIndex + 1).padStart(2, "0")} / {String(HERO_IMAGES.length).padStart(2, "0")}
+            <span
+              aria-hidden="true"
+              className="text-xs tabular-nums text-white/60"
+            >
+              {String(activeImageIndex + 1).padStart(2, "0")} /{" "}
+              {String(HERO_IMAGES.length).padStart(2, "0")}
             </span>
             <button
               type="button"
@@ -228,14 +320,22 @@ export function HeroSection() {
               aria-label={isPaused ? "Play slideshow" : "Pause slideshow"}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition-colors hover:border-[#fdd693] hover:text-[#fdd693]"
             >
-              {isPaused ? <FaPlay aria-hidden="true" className="h-3 w-3" /> : <FaPause aria-hidden="true" className="h-3 w-3" />}
+              {isPaused ? (
+                <FaPlay aria-hidden="true" className="h-3 w-3" />
+              ) : (
+                <FaPause aria-hidden="true" className="h-3 w-3" />
+              )}
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile dots */}
-      <div className="container relative z-20 flex items-center gap-2 pb-8 md:hidden" role="tablist" aria-label="Choose highlight">
+      <div
+        className="container relative z-20 flex items-center gap-2 pb-8 md:hidden"
+        role="tablist"
+        aria-label="Choose highlight"
+      >
         {HERO_IMAGES.map((item, idx) => (
           <button
             key={item.id}
@@ -253,12 +353,22 @@ export function HeroSection() {
 
       <style jsx>{`
         @keyframes heroRise {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         @keyframes heroKenburns {
-          from { transform: scale(1); }
-          to { transform: scale(1.05); }
+          from {
+            transform: scale(1);
+          }
+          to {
+            transform: scale(1.05);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           .animate-\\[heroRise_0\\.7s_ease-out_forwards\\],

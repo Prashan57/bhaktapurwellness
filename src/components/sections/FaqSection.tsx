@@ -73,7 +73,7 @@ export function FaqSection() {
             return (
               <InView key={item.question} delay={Math.min(index * 50, 250)}>
                 <div
-                  className={`overflow-hidden rounded-2xl border bg-[#062324]/80 backdrop-blur-xl transition-colors duration-300 ${
+                  className={`overflow-hidden rounded-2xl border bg-[#062324]/80 backdrop-blur-md transition-colors duration-300 ${
                     isOpen ? "border-[#fdd693]/50" : "border-[#fdd693]/15 hover:border-[#fdd693]/35"
                   }`}
                 >

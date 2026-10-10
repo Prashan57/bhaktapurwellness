@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { InView } from "@/components/motion/InView";
 import { Eyebrow, GradientText } from "@/components/ui/SectionHeader";
 import { BUSINESS_DESCRIPTION } from "@/data/membership";
@@ -42,7 +43,26 @@ export function AboutSection() {
           </InView>
 
           <InView delay={120} className="h-full">
-            <div className="card flex h-full flex-col justify-center p-7 sm:p-8">
+            <figure className="card group relative h-72 overflow-hidden p-0 sm:h-80">
+              <Image
+                src="/images/web/meditation-deck.jpg"
+                alt="Guest meditating on the wellness deck at sunrise"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                loading="lazy"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#041a1b]/85 via-transparent to-transparent" />
+              <figcaption className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
+                <span className="rounded-full border border-[#fdd693]/30 bg-black/45 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693] backdrop-blur-md">
+                  Sunrise practice deck
+                </span>
+                <span className="rounded-full bg-[#fdd693] px-4 py-1.5 text-[0.65rem] font-extrabold uppercase tracking-[0.2em] text-[#0a4243]">
+                  6 AM – 10 PM
+                </span>
+              </figcaption>
+            </figure>
+            <div className="card mt-5 flex h-auto flex-col justify-center p-7 sm:p-8">
               <span aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#fdd693]/40 to-transparent" />
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#fdd693]">
                 Kausaltar · Bhaktapur

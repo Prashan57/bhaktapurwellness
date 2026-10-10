@@ -90,12 +90,16 @@ export function Footer() {
                 <FiMapPin aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
                 {CONTACT.address}
               </p>
-              <p className="flex items-center gap-2.5">
-                <FiPhone aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
-                <a href="tel:+9779800000000" className="rounded transition-colors hover:text-[#fdd693]">
-                  {CONTACT.phone}
-                </a>
-              </p>
+              <div className="space-y-2.5">
+                {CONTACT.phones.map((phone) => (
+                  <p key={phone.href} className="flex items-center gap-2.5">
+                    <FiPhone aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
+                    <a href={phone.href} className="rounded tabular-nums transition-colors hover:text-[#fdd693]">
+                      {phone.label}
+                    </a>
+                  </p>
+                ))}
+              </div>
               <p className="flex items-center gap-2.5">
                 <FiMail aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
                 <a href={`mailto:${CONTACT.email}`} className="rounded break-all transition-colors hover:text-[#fdd693]">
@@ -114,7 +118,12 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 pt-7 text-xs text-slate-400 sm:flex-row">
-          <p>© {new Date().getFullYear()} Bhaktapur Wellness Complex. All rights reserved.</p>
+          <div className="flex flex-col items-center gap-1.5">
+            <p>© {new Date().getFullYear()} Bhaktapur Wellness Complex. All rights reserved.</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">
+              Facility photography · Unsplash contributors
+            </p>
+          </div>
           <ul className="flex items-center gap-2" aria-label="Social media">
             {SOCIAL_LINKS.map(({ label, href, Icon }) => (
               <li key={label}>

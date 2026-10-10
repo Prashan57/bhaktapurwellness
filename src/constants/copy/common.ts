@@ -14,6 +14,8 @@ export const COMMON_COPY = {
   back: "Back",
   retry: "Try again",
   loading: "Loading…",
+  pricingNotice:
+    "Please contact Bhaktapur Wellness for making sure all the pricings matches and know the ongoing offers.",
 } as const;
 
 export const NAV_COPY = {

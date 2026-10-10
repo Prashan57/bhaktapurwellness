@@ -4,8 +4,11 @@ import { InView } from "@/components/motion/InView";
 import { Eyebrow, GradientText } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { LazyContactSection } from "@/components/sections/lazy";
 import { COMMON_COPY } from "@/constants/copy";
-import { FACILITIES, type Facility } from "@/data/facilities";
+import { FACILITIES, type Facility, type PlanGroup } from "@/data/facilities";
+import type { DurationPlan } from "@/data/membership";
+import { PricingNotice } from "@/components/ui/PricingNotice";
 import { FaArrowRight, FaChevronRight } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import { MdWorkspacePremium } from "react-icons/md";
@@ -89,7 +92,7 @@ export function FacilityPage({ facility }: { facility: Facility }) {
           <InView delay={120} className="lg:sticky lg:top-28">
             <aside aria-label={`${facility.name} at a glance`} className="rounded-[2rem] border border-[#fdd693]/20 bg-[#062324]/90 p-7 shadow-[inset_0_1px_0_0_rgba(253,214,147,0.12),0_30px_70px_-20px_rgba(0,0,0,0.75)] backdrop-blur-xl sm:p-8">
               <div className="relative mb-7 h-52 overflow-hidden rounded-2xl border border-[#fdd693]/15">
-                <Image src={facility.image} alt={`${facility.name} interior`} fill sizes="(max-width: 1024px) 100vw, 480px" className="object-cover" />
+                <Image src={facility.image} alt={`${facility.name} interior`} fill sizes="(max-width: 1024px) 100vw, 480px" loading="lazy" className="object-cover" />
                 <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-[#fdd693]/30 bg-black/40 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693] backdrop-blur-md">
                   {facility.tag}
@@ -189,46 +192,18 @@ export function FacilityPage({ facility }: { facility: Facility }) {
               )}
             </InView>
 
-            <ul className="grid grid-cols-1 items-stretch gap-5 pt-4 sm:grid-cols-2 lg:grid-cols-4" aria-label={`${facility.name} plans`}>
-              {facility.plans.map((plan, i) => (
-                <li key={plan.id} className="h-full">
-                  <InView delay={Math.min(i * 70, 210)} className="h-full overflow-visible">
-                    <TiltCard className="relative h-full overflow-visible">
-                      {plan.featured && plan.note && (
-                        <p className="absolute left-1/2 top-0 z-20 inline-flex max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 truncate whitespace-nowrap rounded-full border border-[#fdd693]/60 bg-[#fdd693] px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-[#0a4243] shadow-lg">
-                          {plan.note}
-                        </p>
-                      )}
-                      <div
-                        className={`card card-hover flex h-full flex-col p-6 ${
-                          plan.featured ? "border-2 border-[#fdd693]" : "border border-[#fdd693]/15"
-                        }`}
-                      >
-                        <p className="text-[0.65rem] font-bold uppercase tracking-[0.22em] text-[#fdd693]/90">
-                          {plan.duration}
-                        </p>
-                        <p className="mt-2 text-3xl font-extrabold tracking-tight text-white">{plan.price}</p>
-                        {plan.featured ? (
-                          <p className="mt-1 text-xs font-semibold text-[#f3be6a]">1-Year Premium Plan</p>
-                        ) : null}
-                        <Link
-                          href="/#contact"
-                          aria-label={`Choose ${facility.shortName} — ${plan.duration} for ${plan.price}`}
-                          className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-[0.97] ${
-                            plan.featured
-                              ? "bg-gradient-to-r from-[#fdd693] to-[#f3be6a] text-[#0a4243] shadow-lg shadow-[#fdd693]/25 hover:shadow-[#fdd693]/40"
-                              : "border-2 border-[#fdd693] text-[#fdd693] hover:bg-[#fdd693] hover:text-[#0a4243]"
-                          }`}
-                        >
-                          Choose plan
-                          <FaArrowRight aria-hidden="true" className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </TiltCard>
-                  </InView>
-                </li>
-              ))}
-            </ul>
+            <PlanGroupBlock
+              group={{ title: facility.plansTitle ?? `${facility.shortName} Plans`, plans: facility.plans }}
+              facility={facility}
+              hideTitle
+            />
+            {facility.planGroups?.map((group) => (
+              <PlanGroupBlock key={group.title} group={group} facility={facility} />
+            ))}
+
+            <InView className="mx-auto mt-12 max-w-3xl">
+              <PricingNotice />
+            </InView>
           </div>
         </section>
       )}
@@ -308,6 +283,10 @@ export function FacilityPage({ facility }: { facility: Facility }) {
         </div>
       </section>
 
+      {/* Contact — every "Book / Reserve / Choose plan" tab on this
+          page targets #contact, so the form must exist here too. */}
+      <LazyContactSection />
+
       {/* Others */}
       <section aria-labelledby="more-heading" className="relative overflow-hidden py-20 md:py-24">
         <div className="container relative z-10">
@@ -334,12 +313,11 @@ export function FacilityPage({ facility }: { facility: Facility }) {
                         <Image src={other.image} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw" loading="lazy" className="object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                         <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#062324] via-[#062324]/20 to-transparent" />
                       </span>
-                      <span className="relative z-10 -mt-8 block p-7 pt-0">
-                        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693] shadow-lg shadow-black/30">
-                          <other.icon aria-hidden="true" className="h-5 w-5" />
+                      <span className="block p-6 sm:p-7">
+                        <span className="block">
+                          <span className="block text-lg font-extrabold tracking-tight text-white">{other.name}</span>
+                          <span className="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#fdd693]/80">{other.tag}</span>
                         </span>
-                        <span className="mt-4 block text-lg font-extrabold tracking-tight text-white">{other.name}</span>
-                        <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#fdd693]/80">{other.tag}</span>
                         <span className="mt-4 inline-flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693]">
                           {COMMON_COPY.exploreSpace}
                           <FaArrowRight aria-hidden="true" className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
@@ -354,5 +332,116 @@ export function FacilityPage({ facility }: { facility: Facility }) {
         </div>
       </section>
     </div>
+  );
+}
+
+/**
+ * One titled pricing group (e.g. "Cardio Membership"). Keeps every
+ * membership's prices and benefits inside its own clearly headed block.
+ */
+function PlanGroupBlock({
+  group,
+  facility,
+  hideTitle = false,
+}: {
+  group: PlanGroup;
+  facility: Facility;
+  hideTitle?: boolean;
+}) {
+  return (
+    <div className="mt-4">
+      {!hideTitle && (
+        <InView className="mx-auto mb-8 mt-14 max-w-3xl text-center">
+          <h3 className="text-2xl font-extrabold tracking-tight text-white md:text-4xl">
+            {group.title}
+          </h3>
+          {group.note && (
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
+              {group.note}
+            </p>
+          )}
+        </InView>
+      )}
+      <ul
+        className="grid grid-cols-1 items-stretch gap-5 pt-4 sm:grid-cols-2 lg:grid-cols-4"
+        aria-label={`${facility.name} — ${group.title}`}
+      >
+        {group.plans.map((plan, i) => (
+          <PlanCard key={plan.id} plan={plan} facility={facility} index={i} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Single duration card. Extra Premium plans get their own badge + benefit list. */
+function PlanCard({
+  plan,
+  facility,
+  index,
+}: {
+  plan: DurationPlan;
+  facility: Facility;
+  index: number;
+}) {
+  const isExtra = Boolean(plan.tag);
+  return (
+    <li className="h-full">
+      <InView delay={Math.min(index * 70, 210)} className="h-full overflow-visible">
+        <TiltCard className="relative h-full overflow-visible">
+          {plan.featured && plan.note && (
+            <p className="absolute left-1/2 top-0 z-20 inline-flex max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 truncate whitespace-nowrap rounded-full border border-[#fdd693]/60 bg-[#fdd693] px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-[#0a4243] shadow-lg">
+              {plan.note}
+            </p>
+          )}
+          {isExtra && plan.tag && (
+            <p className="absolute left-1/2 top-0 z-20 inline-flex max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#fdd693]/50 bg-[#0a4243] px-4 py-1 text-[0.65rem] font-extrabold uppercase tracking-[0.18em] text-[#fdd693] shadow-lg">
+              {plan.tag} · 1 Month
+            </p>
+          )}
+          <div
+            className={`card card-hover flex h-full flex-col p-6 ${
+              plan.featured
+                ? "border-2 border-[#fdd693]"
+                : isExtra
+                  ? "border-2 border-[#fdd693]/50"
+                  : "border border-[#fdd693]/15"
+            }`}
+          >
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.22em] text-[#fdd693]/90">
+              {plan.duration}
+            </p>
+            <p className="mt-2 text-3xl font-extrabold tracking-tight text-white">{plan.price}</p>
+            {plan.featured ? (
+              <p className="mt-1 text-xs font-semibold text-[#f3be6a]">1-Year Premium Plan</p>
+            ) : null}
+            {plan.inclusions && (
+              <ul className="mt-4 space-y-2 border-t border-white/10 pt-4 text-sm text-slate-200" aria-label={`${plan.duration} Extra Premium includes`}>
+                {plan.inclusions.map((benefit) => (
+                  <li key={benefit} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#fdd693]/25 bg-[#fdd693]/15 text-[#fdd693]">
+                      <FiCheck aria-hidden="true" className="h-2.5 w-2.5" />
+                    </span>
+                    <span className="leading-relaxed">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href="#contact"
+              aria-label={`Choose ${facility.shortName} — ${plan.duration} for ${plan.price}`}
+              className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-[0.97] ${
+                plan.featured
+                  ? "bg-gradient-to-r from-[#fdd693] to-[#f3be6a] text-[#0a4243] shadow-lg shadow-[#fdd693]/25 hover:shadow-[#fdd693]/40"
+                  : "border-2 border-[#fdd693] text-[#fdd693] hover:bg-[#fdd693] hover:text-[#0a4243]"
+              }`}
+            >
+              Choose plan
+              <FaArrowRight aria-hidden="true" className="h-3 w-3" />
+            </Link>
+          </div>
+        </TiltCard>
+      </InView>
+    </li>
   );
 }

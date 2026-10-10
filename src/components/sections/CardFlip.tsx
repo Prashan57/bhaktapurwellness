@@ -68,7 +68,7 @@ export function CardFlip() {
               If found, please return to Bhaktapur Wellness.
             </div>
             <div className="mt-4 text-xs text-foreground/70 dark:text-white/70">
-              Customer Support: support@bhaktapurwellness.com
+              Customer Support: Wellnessbhaktapur@gmail.com
             </div>
           </div>
         </div>

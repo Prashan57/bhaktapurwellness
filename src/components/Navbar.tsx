@@ -2,11 +2,11 @@
 
 import { COMMON_COPY, NAV_COPY } from "@/constants/copy";
 import { FACILITIES } from "@/data/facilities";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
+import { gsap, gsapSetup, isReducedMotion } from "@/lib/gsap";
 
 const NAV_LINKS = [
   { label: "Home", href: "/#home" },
@@ -18,8 +18,8 @@ const NAV_LINKS = [
 
 /**
  * Navbar — floating glassmorphic pill navigation with magnetic hover
- * and an animated mobile menu. Same links, dropdown, and booking CTA;
- * upgraded visuals only.
+ * and an animated mobile menu. GSAP micro-motion only (transform/opacity),
+ * fully skipped when the user prefers reduced motion.
  */
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,13 +28,50 @@ export function Navbar() {
   const [desktopFacilitiesOpen, setDesktopFacilitiesOpen] = useState(false);
   const facilitiesDropdownRef = useRef<HTMLDivElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
+  const menuDialogRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuListRef = useRef<HTMLUListElement>(null);
   const menuId = useId();
-  const reduceMotion = useReducedMotion();
 
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
     setFacilitiesOpen(false);
   }, []);
+
+  // Entrance: single GSAP tween, transform/opacity only.
+  useEffect(() => {
+    if (isReducedMotion()) return;
+    gsapSetup();
+    const header = headerRef.current;
+    if (!header) return;
+    gsap.fromTo(
+      header,
+      { y: -64, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: "power3.out", overwrite: "auto" },
+    );
+  }, []);
+
+  // Mobile menu open: fade/slide panel + stagger links (minimal).
+  useEffect(() => {
+    if (!menuOpen || isReducedMotion()) return;
+    gsapSetup();
+    const panel = menuPanelRef.current;
+    if (panel) {
+      gsap.fromTo(
+        panel,
+        { opacity: 0, y: -16, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "power3.out", overwrite: "auto" },
+      );
+    }
+    const items = menuListRef.current?.querySelectorAll(":scope > li");
+    if (items?.length) {
+      gsap.fromTo(
+        items,
+        { opacity: 0, x: -16 },
+        { opacity: 1, x: 0, duration: 0.32, ease: "power3.out", stagger: 0.05, overwrite: "auto", clearProps: "transform" },
+      );
+    }
+  }, [menuOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -43,6 +80,12 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Keep the closed mobile menu out of the focus order / a11y tree.
+  // Applied imperatively: React 18 has no boolean `inert` prop, and
+  // spreading one warns on every render without doing anything.
+  useEffect(() => {
+    menuDialogRef.current?.toggleAttribute('inert', !menuOpen);
+  }, [menuOpen]);
   // Escape closes topmost layer; focus the panel when the menu opens.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -87,11 +130,9 @@ export function Navbar() {
     <>
       {/* Floating glass pill — centered, pointer-events pass through outside */}
       <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-3 sm:top-4">
-        <motion.header
-          initial={reduceMotion ? false : { y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className={`pointer-events-auto w-full max-w-[76rem] rounded-full border transition-all duration-300 ${
+        <header
+          ref={headerRef}
+          className={`pointer-events-auto relative w-full max-w-[76rem] rounded-full border transition-all duration-300 ${
             elevated
               ? "glass-strong border-[#fdd693]/20 shadow-lg shadow-black/30"
               : "border-white/10 bg-black/10 backdrop-blur-md"
@@ -252,18 +293,18 @@ export function Navbar() {
               )}
             </button>
           </div>
-        </motion.header>
+        </header>
       </div>
 
       {/* Mobile / tablet floating glass menu */}
       <div
         id={menuId}
+        ref={menuDialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
         className={`fixed inset-0 z-40 ${menuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-hidden={!menuOpen}
-        {...(menuOpen ? {} : { inert: true })}
       >
         <div
           className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
@@ -271,164 +312,133 @@ export function Navbar() {
           }`}
           onClick={closeMenu}
         />
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              ref={menuPanelRef}
-              initial={
-                reduceMotion ? false : { opacity: 0, y: -20, scale: 0.98 }
-              }
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={
-                reduceMotion
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: -20, scale: 0.98 }
-              }
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-x-3 top-20 sm:top-24 lg:hidden"
-            >
-              <div className="glass-strong rounded-3xl border border-[#fdd693]/15 p-6 shadow-2xl">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#fdd693]">
-                    Menu
-                  </span>
-                  <button
-                    type="button"
-                    onClick={closeMenu}
-                    aria-label={NAV_COPY.closeMenu}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#fdd693]/50 bg-white/5 text-[#fdd693] transition-colors hover:bg-[#fdd693] hover:text-[#0a4243] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693]"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M6 6l12 12M18 6L6 18" />
-                    </svg>
-                  </button>
-                </div>
-
-                <nav
-                  aria-label="Mobile"
-                  className="max-h-[55vh] overflow-y-auto"
+        {menuOpen && (
+          <div
+            ref={menuPanelRef}
+            className="absolute inset-x-3 top-20 sm:top-24 lg:hidden"
+          >
+            <div className="glass-strong rounded-3xl border border-[#fdd693]/15 p-6 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#fdd693]">
+                  Menu
+                </span>
+                <button
+                  type="button"
+                  onClick={closeMenu}
+                  aria-label={NAV_COPY.closeMenu}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#fdd693]/50 bg-white/5 text-[#fdd693] transition-colors hover:bg-[#fdd693] hover:text-[#0a4243] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693]"
                 >
-                  <ul className="space-y-1">
-                    {NAV_LINKS.map((link, index) =>
-                      link.facilities ? (
-                        <motion.li
-                          key={link.label}
-                          initial={
-                            reduceMotion ? false : { opacity: 0, x: -20 }
-                          }
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{
-                            delay: reduceMotion ? 0 : index * 0.06,
-                          }}
-                          className="rounded-2xl"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setFacilitiesOpen((prev) => !prev)}
-                            aria-expanded={facilitiesOpen}
-                            className="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-base font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/5 hover:text-[#fdd693]"
-                          >
-                            {link.label}
-                            <FaChevronDown
-                              aria-hidden="true"
-                              className={`h-4 w-4 text-[#fdd693] transition-transform duration-300 ${facilitiesOpen ? "rotate-180" : ""}`}
-                            />
-                          </button>
-                          <div
-                            className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                              facilitiesOpen
-                                ? "grid-rows-[1fr] opacity-100"
-                                : "grid-rows-[0fr] opacity-0"
-                            }`}
-                          >
-                            <div className="overflow-hidden">
-                              <ul className="ml-3 space-y-0.5 border-l border-[#fdd693]/20 py-1 pl-4">
-                                <li>
-                                  <Link
-                                    href="/facilities"
-                                    onClick={closeMenu}
-                                    tabIndex={
-                                      menuOpen && facilitiesOpen ? 0 : -1
-                                    }
-                                    className="block rounded-lg px-2 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white/60 transition-colors hover:text-[#fdd693]"
-                                  >
-                                    {COMMON_COPY.allFacilities}
-                                  </Link>
-                                </li>
-                                {FACILITIES.map((facility) => {
-                                  const FacilityIcon = facility.icon;
-                                  return (
-                                    <li key={facility.slug}>
-                                      <Link
-                                        href={`/facilities/${facility.slug}`}
-                                        onClick={closeMenu}
-                                        tabIndex={
-                                          menuOpen && facilitiesOpen ? 0 : -1
-                                        }
-                                        className="flex items-center gap-3 rounded-lg px-2 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/70 transition-colors hover:text-[#fdd693]"
-                                      >
-                                        <FacilityIcon
-                                          aria-hidden="true"
-                                          className="h-4 w-4 shrink-0 text-[#fdd693]/70"
-                                        />
-                                        {facility.shortName}
-                                      </Link>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            </div>
-                          </div>
-                        </motion.li>
-                      ) : (
-                        <motion.li
-                          key={link.label}
-                          initial={
-                            reduceMotion ? false : { opacity: 0, x: -20 }
-                          }
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{
-                            delay: reduceMotion ? 0 : index * 0.06,
-                          }}
-                        >
-                          <Link
-                            href={link.href}
-                            onClick={closeMenu}
-                            tabIndex={menuOpen ? 0 : -1}
-                            className="block rounded-2xl px-3 py-3 text-base font-bold uppercase tracking-[0.14em] text-white/85 transition-colors hover:bg-white/5 hover:text-[#fdd693]"
-                          >
-                            {link.label}
-                          </Link>
-                        </motion.li>
-                      ),
-                    )}
-                  </ul>
-
-                  <Link
-                    href="/#contact"
-                    onClick={closeMenu}
-                    tabIndex={menuOpen ? 0 : -1}
-                    className="mt-6 flex items-center justify-center rounded-full border-2 border-[#fdd693] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#fdd693] transition-colors hover:bg-[#fdd693] hover:text-[#0a4243]"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
                   >
-                    {COMMON_COPY.bookPeace}
-                  </Link>
-                  <p className="mt-6 text-center text-xs text-slate-400">
-                    Open daily · 6:00 AM – 10:00 PM · Bhaktapur, Nepal
-                  </p>
-                </nav>
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              <nav
+                aria-label="Mobile"
+                className="max-h-[55vh] overflow-y-auto"
+              >
+                <ul ref={menuListRef} className="space-y-1">
+                  {NAV_LINKS.map((link) =>
+                    link.facilities ? (
+                      <li key={link.label} className="rounded-2xl">
+                        <button
+                          type="button"
+                          onClick={() => setFacilitiesOpen((prev) => !prev)}
+                          aria-expanded={facilitiesOpen}
+                          className="flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-base font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-white/5 hover:text-[#fdd693]"
+                        >
+                          {link.label}
+                          <FaChevronDown
+                            aria-hidden="true"
+                            className={`h-4 w-4 text-[#fdd693] transition-transform duration-300 ${facilitiesOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        <div
+                          className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                            facilitiesOpen
+                              ? "grid-rows-[1fr] opacity-100"
+                              : "grid-rows-[0fr] opacity-0"
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            <ul className="ml-3 space-y-0.5 border-l border-[#fdd693]/20 py-1 pl-4">
+                              <li>
+                                <Link
+                                  href="/facilities"
+                                  onClick={closeMenu}
+                                  tabIndex={
+                                    menuOpen && facilitiesOpen ? 0 : -1
+                                  }
+                                  className="block rounded-lg px-2 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white/60 transition-colors hover:text-[#fdd693]"
+                                >
+                                  {COMMON_COPY.allFacilities}
+                                </Link>
+                              </li>
+                              {FACILITIES.map((facility) => {
+                                const FacilityIcon = facility.icon;
+                                return (
+                                  <li key={facility.slug}>
+                                    <Link
+                                      href={`/facilities/${facility.slug}`}
+                                      onClick={closeMenu}
+                                      tabIndex={
+                                        menuOpen && facilitiesOpen ? 0 : -1
+                                      }
+                                      className="flex items-center gap-3 rounded-lg px-2 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/70 transition-colors hover:text-[#fdd693]"
+                                    >
+                                      <FacilityIcon
+                                        aria-hidden="true"
+                                        className="h-4 w-4 shrink-0 text-[#fdd693]/70"
+                                      />
+                                      {facility.shortName}
+                                    </Link>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        </div>
+                      </li>
+                    ) : (
+                      <li key={link.label}>
+                        <Link
+                          href={link.href}
+                          onClick={closeMenu}
+                          tabIndex={menuOpen ? 0 : -1}
+                          className="block rounded-2xl px-3 py-3 text-base font-bold uppercase tracking-[0.14em] text-white/85 transition-colors hover:bg-white/5 hover:text-[#fdd693]"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ),
+                  )}
+                </ul>
+
+                <Link
+                  href="/#contact"
+                  onClick={closeMenu}
+                  tabIndex={menuOpen ? 0 : -1}
+                  className="mt-6 flex items-center justify-center rounded-full border-2 border-[#fdd693] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#fdd693] transition-colors hover:bg-[#fdd693] hover:text-[#0a4243]"
+                >
+                  {COMMON_COPY.bookPeace}
+                </Link>
+                <p className="mt-6 text-center text-xs text-slate-400">
+                  Open daily · 6:00 AM – 10:00 PM · Bhaktapur, Nepal
+                </p>
+              </nav>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

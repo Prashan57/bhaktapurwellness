@@ -1,6 +1,6 @@
 import type { IconType } from "react-icons";
 import type { DurationPlan } from "./membership";
-import { DANCE_PLANS, KICKBOXING_PLANS, LOCKER_PLANS } from "./membership";
+import { CARDIO_PLANS, DANCE_PLANS, GYM_CARDIO_PLANS, GYM_PLANS, KICKBOXING_PLANS, LOCKER_PLANS, ZUMBA_PLANS } from "./membership";
 import {
   FaAward,
   FaBolt,
@@ -43,6 +43,13 @@ export type FacilityStat = {
   label: string;
 };
 
+/** A titled set of duration plans rendered as its own pricing group. */
+export type PlanGroup = {
+  title: string;
+  note?: string;
+  plans: DurationPlan[];
+};
+
 export type Facility = {
   slug: string;
   shortName: string;
@@ -64,6 +71,8 @@ export type Facility = {
   plans?: DurationPlan[];
   plansTitle?: string;
   plansNote?: string;
+  /** Extra titled plan groups rendered below the primary plans. */
+  planGroups?: PlanGroup[];
 };
 
 // Single source of truth for every facility. Used by the navbar dropdown,
@@ -83,7 +92,7 @@ export const FACILITIES: Facility[] = [
     image: "/images/gallery/healthy-food.jpg",
     gallery: [
       "/images/gallery/healthy-food.jpg",
-      "/images/gallery/wellness-retreat.jpg",
+      "/images/web/restaurant-plate.jpg",
       "/images/gallery/outdoor-activity.jpg",
     ],
     highlights: [
@@ -135,11 +144,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Our high-performance gym is built for serious progress at every level. From dedicated heavy-lifting platforms and full free-weight zones to a comprehensive cardio suite, every corner of the floor is engineered to help you move better, recover faster, and feel unstoppable. Certified personal trainers are always on hand to sharpen your form, structure your program, and keep you accountable toward your goals.",
     icon: FaDumbbell,
-    image: "/images/gallery/qwe.jpg",
+    image: "/images/web/gym-floor.jpg",
     gallery: [
+      "/images/web/gym-floor.jpg",
       "/images/gallery/qwe.jpg",
       "/images/gallery/zumba.jpg",
-      "/images/gallery/outdoor-activity.jpg",
     ],
     highlights: [
       "State-of-the-art strength & cardio equipment",
@@ -178,9 +187,26 @@ export const FACILITIES: Facility[] = [
       { value: "Daily", label: "Group Classes" },
     ],
     hours: "6:00 AM – 10:00 PM · Daily",
-    plans: LOCKER_PLANS,
-    plansTitle: "Locker Membership",
-    plansNote: "Your own secure locker at the gym — separate from gym access, billed by duration.",
+    plans: GYM_PLANS,
+    plansTitle: "Gym Membership",
+    plansNote: "Train on your terms — pick a duration, upgrade to Extra Premium for sauna, steam, pool, and spa.",
+    planGroups: [
+      {
+        title: "Cardio Membership",
+        note: "Dedicated cardio training with an Extra Premium path to sauna, steam, pool, and spa.",
+        plans: CARDIO_PLANS,
+      },
+      {
+        title: "Gym + Cardio Membership",
+        note: "Combined strength and cardio access — Extra Premium adds sauna, steam, pool, and spa.",
+        plans: GYM_CARDIO_PLANS,
+      },
+      {
+        title: "Locker Membership",
+        note: "Your own secure locker at the gym — separate from gym access, billed by duration.",
+        plans: LOCKER_PLANS,
+      },
+    ],
   },
   {
     slug: "boxing",
@@ -193,10 +219,10 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Step into the ring and channel your intensity into craft. Our dedicated boxing studio features a regulation-size sparring ring, a heavy bag alley, and floor-to-ceiling striking stations, with programs led by seasoned martial arts coaches. Whether you are stepping in for your first class or preparing for a fight, every session builds the discipline, conditioning, and confidence that boxing is famous for.",
     icon: GiBoxingGlove,
-    image: "/images/gallery/qwe.jpg",
+    image: "/images/web/boxing-ring.jpg",
     gallery: [
+      "/images/web/boxing-ring.jpg",
       "/images/gallery/qwe.jpg",
-      "/images/gallery/zumba.jpg",
       "/images/gallery/wellness-retreat.jpg",
     ],
     highlights: [
@@ -251,10 +277,10 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Our dance studio is built for joyful, disciplined movement. Guided by experienced instructors, classes blend rhythm, cardio conditioning, and technique into sessions that work for complete beginners and seasoned dancers alike. Pick a duration that fits your schedule and stay consistent — progress follows rhythm.",
     icon: FaMusic,
-    image: "/images/gallery/zumba.jpg",
+    image: "/images/web/dance-studio.jpg",
     gallery: [
+      "/images/web/dance-studio.jpg",
       "/images/gallery/zumba.jpg",
-      "/images/gallery/qwe.jpg",
       "/images/gallery/outdoor-activity.jpg",
     ],
     highlights: [
@@ -297,6 +323,13 @@ export const FACILITIES: Facility[] = [
     plans: DANCE_PLANS,
     plansTitle: "Dance Class Plans",
     plansNote: "Four simple durations — pick the rhythm that fits your schedule.",
+    planGroups: [
+      {
+        title: "Zumba Membership",
+        note: "High-energy Zumba with an Extra Premium path to sauna, steam, and spa.",
+        plans: ZUMBA_PLANS,
+      },
+    ],
   },
   {
     slug: "pool",
@@ -309,11 +342,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Plunge into crystal-clear, climate-controlled water any day of the year. Our indoor heated pool is perfect for morning laps, gentle aquatic recovery, and family-friendly afternoons alike. Dedicated lanes keep lap swimmers moving freely while the shallow leisure zone welcomes beginners — all finished with premium locker rooms and organic towel service.",
     icon: FaSwimmer,
-    image: "/images/gallery/hero.jpg",
+    image: "/images/web/pool-lanes.jpg",
     gallery: [
+      "/images/web/pool-lanes.jpg",
       "/images/gallery/hero.jpg",
       "/images/gallery/bw.jpg",
-      "/images/gallery/meditation.jpg",
     ],
     highlights: [
       "Climate-controlled heated water",
@@ -367,11 +400,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Close your eyes and let the warmth do its work. Our luxury spa blends Himalayan salt saunas, aromatic steam rooms, and serene treatment suites into a sanctuary of stillness. Signature massages and body rituals draw on ancient Himalayan botanicals, while the recovery lounge invites you to linger long after your treatment ends. Every detail — from lighting to linen — is designed to melt tension away.",
     icon: MdSpa,
-    image: "/images/gallery/spa-treatment.jpg",
+    image: "/images/web/spa-ritual.jpg",
     gallery: [
-      "/images/gallery/spa-treatment.jpg",
+      "/images/web/spa-ritual.jpg",
+      "/images/web/sauna-steam.jpg",
       "/images/gallery/meditation.jpg",
-      "/images/gallery/wellness-retreat.jpg",
     ],
     highlights: [
       "Himalayan salt sauna & steam room",
@@ -425,11 +458,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "There is nothing quite like sinking into warm, gently churning water at the end of a long day. Our jacuzzi and hydrotherapy zone features heated soaking pools, targeted massage jets, and a serene poolside lounge built for unhurried unwinding. Perfect on its own or after a hard training session, it is our most popular way to finish a perfect day at the sanctuary.",
     icon: MdWaves,
-    image: "/images/gallery/bw.jpg",
+    image: "/images/web/jacuzzi-soak.jpg",
     gallery: [
+      "/images/web/jacuzzi-soak.jpg",
       "/images/gallery/bw.jpg",
       "/images/gallery/hero.jpg",
-      "/images/gallery/meditation.jpg",
     ],
     highlights: [
       "Heated hydrotherapy soaking pools",
@@ -483,11 +516,11 @@ export const FACILITIES: Facility[] = [
     longDescription:
       "Our beauty & salon studio is where self-care meets ceremony. From precision haircuts, blowouts, and finishing touches to rejuvenating skincare rituals, our stylists and beauty experts tailor every session to your features and your goals. Sink into our relaxed salon chairs, sip a herbal tea, and emerge polished, radiant, and completely at ease.",
     icon: GiScissors,
-    image: "/images/gallery/spa-treatment.jpg",
+    image: "/images/web/salon-chair.jpg",
     gallery: [
+      "/images/web/salon-chair.jpg",
       "/images/gallery/spa-treatment.jpg",
       "/images/gallery/wellness-retreat.jpg",
-      "/images/gallery/meditation.jpg",
     ],
     highlights: [
       "Hair styling, blowouts & finishing touches",

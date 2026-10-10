@@ -2,7 +2,7 @@ import { HeroSection } from '@/components/sections/HeroSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
 import { GallerySection } from '@/components/sections/GallerySection';
-import { ContactSection } from '@/components/sections/ContactSection';
+import { LazyContactSection } from '@/components/sections/lazy';
 import { PricingSection } from '@/components/sections/PricingSection';
 import { FaqSection } from '@/components/sections/FaqSection';
 
@@ -30,7 +30,7 @@ export default function Home() {
       <FaqSection />
 
       {/* Contact Section */}
-      <ContactSection />
+      <LazyContactSection />
 
       {/* Footer */}
     </div>
