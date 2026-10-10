@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FACILITIES } from "@/data/facilities";
+import { CONTACT } from "@/constants/constants";
 import {
   FiMapPin,
   FiPhone,
@@ -8,137 +9,125 @@ import {
   FiInstagram,
   FiFacebook,
   FiYoutube,
+  FiClock,
 } from "react-icons/fi";
+
+const SOCIAL_LINKS = [
+  { label: "Instagram", href: "#", Icon: FiInstagram },
+  { label: "Facebook", href: "#", Icon: FiFacebook },
+  { label: "YouTube", href: "#", Icon: FiYoutube },
+];
 
 export function Footer() {
   return (
-    <footer className="bg-[#031718] text-white border-t border-[#fdd693]/20 py-16 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-40 bg-[#fdd693]/10 rounded-full blur-[120px] pointer-events-none" />
+    <footer className="relative overflow-hidden border-t border-[#fdd693]/15 bg-[#031718] py-14 text-white md:py-16">
+      <div
+        aria-hidden="true"
+        className="ambient-glow left-1/2 top-full h-48 w-[min(50rem,90vw)] -translate-x-1/2 -translate-y-1/3 bg-[#fdd693]/10 blur-[100px]"
+      />
 
-      <div className="container mx-auto px-4 max-w-7xl relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-white/10">
-          {/* Brand */}
-          <div className="md:col-span-5 flex flex-col justify-between">
-            <div>
-              <Link href="/" className="flex items-center gap-3 mb-4">
-                <div className="h-11 w-11 rounded-full overflow-hidden relative border border-[#fdd693]/50 shadow-lg">
-                  <Image
-                    src="/images/gallery/bw.jpg"
-                    alt="Bhaktapur Wellness Logo"
-                    fill
-                    sizes="44px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-[0.65rem] uppercase tracking-[0.4em] text-[#fdd693] font-bold">
-                    Bhaktapur
-                  </span>
-                  <span className="text-xl font-extrabold tracking-[0.06em] text-white">
-                    Wellness
-                  </span>
-                </div>
-              </Link>
-              <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
-                Nepal&apos;s premier integrated sanctuary uniting Gym
-                performance, Pro Boxing, Heated Pool aquatics, Luxury Spa &amp;
-                Sauna rituals, and Organic Dining.
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-2 text-xs text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#fdd693] shadow-[0_0_10px_rgba(253,214,147,0.12)]" />
-              <span>Bhaktapur, Nepal · Open 7 Days / Week</span>
-            </div>
+      <div className="container relative z-10">
+        <div className="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="sm:col-span-2 lg:col-span-5">
+            <Link href="/" className="inline-flex items-center gap-3 rounded-xl" aria-label="Bhaktapur Wellness — Home">
+              <span className="relative block h-11 w-11 overflow-hidden rounded-full border border-[#fdd693]/50 shadow-lg">
+                <Image
+                  src="/images/gallery/bw.jpg"
+                  alt=""
+                  fill
+                  sizes="44px"
+                  className="object-cover"
+                />
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="text-[0.65rem] font-bold uppercase tracking-[0.4em] text-[#fdd693]">
+                  Bhaktapur
+                </span>
+                <span className="text-xl font-extrabold tracking-[0.06em] text-white">
+                  Wellness
+                </span>
+              </span>
+            </Link>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-300">
+              Nepal&apos;s integrated sanctuary — gym performance, pro boxing,
+              heated pool, luxury spa &amp; sauna rituals, and organic dining
+              under one roof.
+            </p>
+            <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs text-slate-300">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#fdd693]" />
+              Bhaktapur, Nepal · Open 7 days a week
+            </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="md:col-span-3">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#fdd693] mb-4">
+          <nav aria-label="Facilities" className="lg:col-span-3">
+            <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#fdd693]">
               Core Facilities
-            </h4>
-            <ul className="space-y-3 text-sm text-slate-300">
+            </h2>
+            <ul className="space-y-2.5 text-sm">
               {FACILITIES.map((facility) => {
                 const FacilityIcon = facility.icon;
                 return (
                   <li key={facility.slug}>
                     <Link
                       href={`/facilities/${facility.slug}`}
-                      className="hover:text-[#fdd693] transition-colors flex items-center gap-2"
+                      className="inline-flex items-center gap-2 rounded-md text-slate-300 transition-colors hover:text-[#fdd693]"
                     >
-                      <FacilityIcon className="w-4 h-4 text-slate-300" />
+                      <FacilityIcon aria-hidden="true" className="h-4 w-4 text-slate-400" />
                       {facility.name}
                     </Link>
                   </li>
                 );
               })}
             </ul>
-          </div>
+          </nav>
 
-          {/* Contact info */}
-          <div className="md:col-span-4">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#fdd693] mb-4">
+          <div className="lg:col-span-4">
+            <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#fdd693]">
               Contact &amp; Hours
-            </h4>
-            <div className="space-y-3 text-sm text-slate-300">
-              <div className="flex items-center gap-2">
-                <FiMapPin className="w-4 h-4" /> Bhaktapur, Nepal
-              </div>
-              <div className="flex items-center gap-2">
-                <FiPhone className="w-4 h-4" />{" "}
-                <a
-                  href="tel:+9779800000000"
-                  className="hover:text-[#fdd693] transition"
-                >
-                  (+977) 980-0000000
+            </h2>
+            <address className="space-y-3 text-sm not-italic text-slate-300">
+              <p className="flex items-center gap-2.5">
+                <FiMapPin aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
+                {CONTACT.address}
+              </p>
+              <p className="flex items-center gap-2.5">
+                <FiPhone aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
+                <a href="tel:+9779800000000" className="rounded transition-colors hover:text-[#fdd693]">
+                  {CONTACT.phone}
                 </a>
-              </div>
-              <div className="flex items-center gap-2">
-                <FiMail className="w-4 h-4" />{" "}
-                <a
-                  href="mailto:support@bhaktapurwellness.com"
-                  className="hover:text-[#fdd693] transition"
-                >
-                  support@bhaktapurwellness.com
+              </p>
+              <p className="flex items-center gap-2.5">
+                <FiMail aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
+                <a href={`mailto:${CONTACT.email}`} className="rounded break-all transition-colors hover:text-[#fdd693]">
+                  {CONTACT.email}
                 </a>
-              </div>
-              <div className="pt-2 text-xs text-slate-300 border-t border-white/10">
-                <span className="text-[#fdd693] font-semibold">Hours:</span>{" "}
-                Mon–Sun: 6:00 AM – 10:00 PM
-              </div>
-            </div>
+              </p>
+              <p className="flex items-center gap-2.5 border-t border-white/10 pt-3 text-xs">
+                <FiClock aria-hidden="true" className="h-4 w-4 shrink-0 text-[#fdd693]/80" />
+                <span>
+                  <span className="font-semibold text-[#fdd693]">Hours: </span>
+                  {CONTACT.hours}
+                </span>
+              </p>
+            </address>
           </div>
         </div>
 
-        {/* Bottom credits */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 gap-4">
-          <p>
-            © {new Date().getFullYear()} Bhaktapur Wellness Complex. All rights
-            reserved.
-          </p>
-          <div className="flex items-center gap-6 text-xs text-slate-400">
-            <span>Designed &amp; developed by OK</span>
-            <div className="flex items-center gap-3">
-              <a
-                href="#"
-                className="text-slate-300 hover:text-[#fdd693] transition"
-              >
-                <FiInstagram className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="text-slate-300 hover:text-[#fdd693] transition"
-              >
-                <FiFacebook className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="text-slate-300 hover:text-[#fdd693] transition"
-              >
-                <FiYoutube className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
+        <div className="flex flex-col items-center justify-between gap-4 pt-7 text-xs text-slate-400 sm:flex-row">
+          <p>© {new Date().getFullYear()} Bhaktapur Wellness Complex. All rights reserved.</p>
+          <ul className="flex items-center gap-2" aria-label="Social media">
+            {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  aria-label={`Bhaktapur Wellness on ${label}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-slate-300 transition-colors hover:border-[#fdd693]/40 hover:text-[#fdd693]"
+                >
+                  <Icon aria-hidden="true" className="h-4 w-4" />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

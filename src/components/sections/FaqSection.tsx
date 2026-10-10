@@ -2,39 +2,46 @@
 
 import { useState } from "react";
 import { InView } from "@/components/motion/InView";
+import { Eyebrow, GradientText } from "@/components/ui/SectionHeader";
+import { SECTION_COPY } from "@/constants/copy";
 import { FaChevronDown } from "react-icons/fa";
 import { MdHelpOutline } from "react-icons/md";
 
 const FAQ_ITEMS = [
   {
-    question: "What is included in a Day Sanctuary Pass?",
+    question: "What do the combined wellness packages include?",
     answer:
-      "A Day Sanctuary Pass gives you full single-day access to the gym & cardio floor, heated pool & jacuzzi, Himalayan sauna & steam room, plus locker rooms and organic towel service. Spa treatments and personal training can be added at the front desk.",
+      "Every combined package includes Gym, Sauna, Steam, Cardio, Locker, and Spa access twice a month. Choose 3 months (NRs. 40,000), 6 months (NRs. 60,000), or a full year (NRs. 100,000).",
   },
   {
     question: "Can I try a facility before committing to a membership?",
     answer:
-      "Absolutely. We offer day passes and free guided tours. Contact us to book a complimentary walkthrough of all 5 facilities — the gym, boxing studio, pool, spa & sauna, and restaurant — so you can decide what fits you best.",
+      "Yes — book a sauna, steam & heated pool session (NRs. 1,000) or a guided tour covering the gym, boxing studio, pool, spa & sauna, and restaurant, then decide what fits you best.",
   },
   {
     question: "What are the opening hours?",
     answer:
-      "We are open 7 days a week, 6:00 AM to 10:00 PM. The organic restaurant and spa follow the same daily schedule, while personal training and spa appointments can be reserved in advance.",
+      "Open 7 days a week, 6:00 AM to 10:00 PM. Sauna, Steam & Heated Pool sessions run Morning 7:00 AM – 11:00 AM, Afternoon 1:00 PM – 4:00 PM, and Evening 5:00 PM – 9:00 PM.",
   },
   {
-    question: "Do you run classes and personal training?",
+    question: "Do you run Dance, Kickboxing and personal training?",
     answer:
-      "Yes. We offer boxing & martial arts coaching, functional and HIIT sessions, personal training, and wellness classes. All-Access members receive 3 free personal trainer sessions every month, and VIP members get a dedicated 1-on-1 trainer.",
+      "Yes — Dance Classes (1 month NRs. 3,000 · 3 months NRs. 8,000 · 6 months NRs. 15,000 · 1 year NRs. 28,000) and Kickboxing Classes (1 month NRs. 6,000 · 3 months NRs. 15,000 · 6 months NRs. 27,000 · 1 year NRs. 50,000), plus personal training on request.",
   },
   {
-    question: "Is there parking or facilities for guests?",
+    question: "Is there parking, and are guests welcome?",
     answer:
-      "Guests are welcome with a valid pass or member guest privileges. Parking is available on-site, and our organic restaurant and lounge are open to day-pass holders and members alike.",
+      "Guests are welcome with a valid pass or member guest privileges. On-site parking is available, and the restaurant and lounge are open to day-pass holders and members alike.",
   },
   {
     question: "How do I book a spa treatment or reserve the pool?",
     answer:
-      "Reservations can be made through the contact form, by phone, or at the front desk. VIP members can reserve the private spa and sauna for exclusive sessions at their preferred time.",
+      "Use the contact form, call us, or book at the front desk. Combined packages include spa access twice a month; VIP members can ask about exclusive wellness packages and special offers.",
+  },
+  {
+    question: "Is locker membership the same as gym membership?",
+    answer:
+      "No — Locker Membership is separate (1 month NRs. 600 · 3 months NRs. 1,400 · 6 months NRs. 2,600 · 1 year NRs. 3,800). Combined wellness packages already include locker access.",
   },
 ];
 
@@ -42,74 +49,74 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="py-24 bg-[#041a1b] text-white scroll-mt-24 relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#0a4243]/50 rounded-full blur-[140px] pointer-events-none animate-float-soft" />
-      <div className="absolute bottom-10 -left-10 w-96 h-96 bg-[#fdd693]/8 rounded-full blur-[140px] pointer-events-none animate-float-soft [animation-delay:-3s]" />
+    <section id="faq" aria-labelledby="faq-heading" className="section section-base">
+      <div aria-hidden="true" className="ambient-glow right-10 top-1/3 h-72 w-72 bg-[#0a4243]/50 blur-[100px]" />
 
-      <div className="container mx-auto px-4 max-w-4xl relative z-10">
-        <InView className="text-center mb-14">
-          {/* Section eyebrow badge — uniform with contact-badge style */}
-          <span className="inline-flex items-center gap-2.5 rounded-full border border-[#fdd693]/30 bg-[#0a4243]/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#fdd693] backdrop-blur-xl shadow-lg shadow-black/20 mb-5">
-            <MdHelpOutline className="h-4 w-4" />
-            Frequently Asked Questions
-          </span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
-            Everything You Need to{" "}
-            <span className="bg-gradient-to-r from-[#fdd693] via-[#fff0d0] to-[#f3be6a] bg-clip-text text-transparent">
-              Know.
-            </span>
+      <div className="container-narrow relative z-10">
+        <InView className="mb-12 text-center">
+          <Eyebrow icon={<MdHelpOutline aria-hidden="true" className="h-4 w-4" />}>
+            {SECTION_COPY.faqEyebrow}
+          </Eyebrow>
+          <h2 id="faq-heading" className="mt-5 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
+            Everything You Need to <GradientText>Know.</GradientText>
           </h2>
-          <p className="mt-4 text-slate-300 text-base sm:text-lg">
-            Quick answers about memberships, facilities, hours, and bookings — still unsure? Just ask us.
+          <p className="mt-4 text-base text-slate-300 sm:text-lg">
+            Memberships, facilities, hours, and bookings — still unsure? Just ask us.
           </p>
         </InView>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {FAQ_ITEMS.map((item, index) => {
             const isOpen = openIndex === index;
+            const panelId = `faq-panel-${index}`;
+            const buttonId = `faq-button-${index}`;
             return (
-              <InView key={item.question} delay={index * 60}>
+              <InView key={item.question} delay={Math.min(index * 50, 250)}>
                 <div
-                  className={`overflow-hidden rounded-2xl border bg-[#062324]/80 backdrop-blur-xl transition-all duration-500 ${
-                    isOpen
-                      ? "border-[#fdd693]/50 shadow-[0_18px_50px_rgba(253,214,147,0.12)]"
-                      : "border-[#fdd693]/15 hover:border-[#fdd693]/40 hover:-translate-y-0.5"
+                  className={`overflow-hidden rounded-2xl border bg-[#062324]/80 backdrop-blur-xl transition-colors duration-300 ${
+                    isOpen ? "border-[#fdd693]/50" : "border-[#fdd693]/15 hover:border-[#fdd693]/35"
                   }`}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setOpenIndex(isOpen ? null : index)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                  >
-                    <span className="flex items-center gap-4">
-                      <span
-                        className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-colors duration-300 ${
-                          isOpen
-                            ? "bg-[#fdd693] text-[#0a4243] border-[#fdd693]"
-                            : "bg-[#0a4243] text-[#fdd693] border-[#fdd693]/25"
-                        }`}
-                      >
-                        {index + 1}
+                  <h3>
+                    <button
+                      type="button"
+                      id={buttonId}
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      onClick={() => setOpenIndex(isOpen ? null : index)}
+                      className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
+                    >
+                      <span className="flex items-center gap-3.5">
+                        <span
+                          aria-hidden="true"
+                          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-colors duration-300 ${
+                            isOpen
+                              ? "border-[#fdd693] bg-[#fdd693] text-[#0a4243]"
+                              : "border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693]"
+                          }`}
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="text-sm font-bold text-white sm:text-base">
+                          {item.question}
+                        </span>
                       </span>
-                      <span className="text-sm sm:text-base font-bold text-white">
-                        {item.question}
-                      </span>
-                    </span>
-                    <FaChevronDown
-                      className={`h-4 w-4 shrink-0 text-[#fdd693] transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                      <FaChevronDown
+                        aria-hidden="true"
+                        className={`h-4 w-4 shrink-0 text-[#fdd693] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </h3>
                   <div
-                    className={`grid transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={buttonId}
+                    className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-6 pb-6 pl-[3.75rem] text-sm text-slate-300 leading-relaxed">
+                      <p className="px-5 pb-5 pl-[3.75rem] pr-6 text-sm leading-relaxed text-slate-300 sm:px-6 sm:pb-6">
                         {item.answer}
                       </p>
                     </div>
@@ -120,12 +127,12 @@ export function FaqSection() {
           })}
         </div>
 
-        <InView className="mt-12 text-center">
+        <InView className="mt-10 text-center">
           <p className="text-sm text-slate-400">
             Still have questions?{" "}
             <a
               href="#contact"
-              className="font-bold text-[#fdd693] underline decoration-[#fdd693]/40 underline-offset-4 transition-colors hover:text-[#fff0d0]"
+              className="rounded font-bold text-[#fdd693] underline decoration-[#fdd693]/40 underline-offset-4 transition-colors hover:text-[#fff0d0]"
             >
               Reach out to our team
             </a>

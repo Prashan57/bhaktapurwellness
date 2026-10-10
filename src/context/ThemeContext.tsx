@@ -23,7 +23,6 @@ const getInitialTheme = (): Theme => {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
-  const [mounted, setMounted] = useState(false);
 
   // Update the DOM when theme changes
   const updateTheme = useCallback((newTheme: Theme) => {
@@ -35,12 +34,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Set initial theme and mounted state
+  // Set initial theme
   useEffect(() => {
     updateTheme(theme);
-    // Use setTimeout to defer the state update and avoid cascading renders
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
   }, [theme, updateTheme]);
 
   // Listen for system theme changes when no preference is set
@@ -63,11 +59,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleTheme = useCallback(() => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   }, []);
-
-  // Don't render until we've determined the theme
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

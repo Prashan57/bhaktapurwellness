@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { InView } from "@/components/motion/InView";
+import { Eyebrow, GradientText } from "@/components/ui/SectionHeader";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { COMMON_COPY } from "@/constants/copy";
 import { FACILITIES } from "@/data/facilities";
 import { FaArrowRight } from "react-icons/fa";
 import { GiLotus } from "react-icons/gi";
@@ -9,120 +11,104 @@ import { GiLotus } from "react-icons/gi";
 export function FacilitiesOverview() {
   return (
     <div className="relative overflow-hidden bg-[#041a1b] text-white">
-      {/* ================= HERO BANNER ================= */}
-      <section className="relative flex min-h-[70vh] items-end overflow-hidden">
-        <div className="absolute inset-0">
+      <section aria-labelledby="facilities-title" className="relative flex min-h-[68vh] items-end overflow-hidden">
+        <div className="absolute inset-0" aria-hidden="true">
           <Image
             src="/images/gallery/wellness-retreat.jpg"
-            alt="Bhaktapur Wellness sanctuary"
+            alt=""
             fill
             priority
             sizes="100vw"
-            className="object-cover brightness-90 contrast-[1.02]"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#041a1b] via-[#0a4243]/55 to-black/45" />
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#041a1b] to-transparent" />
         </div>
 
-        <div className="absolute top-1/4 -right-20 w-96 h-96 bg-[#fdd693]/10 rounded-full blur-[140px] pointer-events-none animate-float-soft" />
-        <div className="absolute top-1/3 left-0 w-80 h-80 bg-[#0a4243]/60 rounded-full blur-[130px] pointer-events-none animate-float-soft [animation-delay:-3s]" />
-
-        <div className="container relative z-10 pt-40 md:pt-44 pb-16">
+        <div className="container relative z-10 pb-14 pt-36 md:pt-40">
           <InView>
-            <nav
-              aria-label="Breadcrumb"
-              className="mb-8 flex items-center gap-2 text-[0.65rem] sm:text-xs uppercase tracking-[0.25em] text-white/60"
-            >
-              <Link href="/" className="transition-colors hover:text-[#fdd693]">
+            <nav aria-label="Breadcrumb" className="mb-7 flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.25em] text-white/60 sm:text-xs">
+              <Link href="/" className="rounded transition-colors hover:text-[#fdd693]">
                 Home
               </Link>
-              <span className="flex items-center gap-2">
-                <span className="h-px w-3 bg-[#fdd693]/60" />
-                <span className="text-[#fdd693]">Facilities</span>
-              </span>
+              <span aria-hidden="true" className="h-px w-3 bg-[#fdd693]/60" />
+              <span aria-current="page" className="text-[#fdd693]">Facilities</span>
             </nav>
 
-            <span className="inline-flex items-center gap-2.5 rounded-full border border-[#fdd693]/30 bg-[#0a4243]/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#fdd693] backdrop-blur-xl shadow-lg shadow-black/20">
-              <GiLotus className="h-4 w-4" />
+            <Eyebrow icon={<GiLotus aria-hidden="true" className="h-4 w-4" />}>
               {FACILITIES.length} Facilities &amp; Experiences
-            </span>
+            </Eyebrow>
 
-            <h1 className="mt-6 max-w-4xl text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter leading-[1.02] drop-shadow-[0_15px_30px_rgba(0,0,0,0.45)]">
-              Every Space,{" "}
-              <span className="bg-gradient-to-r from-[#fdd693] via-[#fff0d0] to-[#f3be6a] bg-clip-text text-transparent">
-                Crafted to Restore.
-              </span>
+            <h1 id="facilities-title" className="mt-6 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-tighter sm:text-6xl md:text-7xl">
+              Every Space, <GradientText>Crafted to Restore.</GradientText>
             </h1>
-            <p className="mt-6 max-w-2xl text-sm sm:text-base leading-relaxed text-white/85 drop-shadow-md">
-              From the high-performance gym floor to the quiet warmth of the
-              Himalayan sauna, each of our {FACILITIES.length} facilities has
-              been designed as its own ritual — explore them all below.
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
+              From the high-performance gym floor to the quiet warmth of the Himalayan sauna,
+              each of our {FACILITIES.length} facilities is its own ritual — explore them below.
             </p>
           </InView>
         </div>
       </section>
 
-      {/* ================= FACILITY GRID ================= */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#0a4243]/50 rounded-full blur-[150px] pointer-events-none animate-float-soft" />
-        <div className="absolute bottom-10 right-0 w-96 h-96 bg-[#fdd693]/8 rounded-full blur-[150px] pointer-events-none animate-float-soft [animation-delay:-3s]" />
+      <section aria-labelledby="ritual-heading" className="relative overflow-hidden py-20 md:py-24">
+        <div aria-hidden="true" className="ambient-glow -left-20 top-1/4 h-72 w-72 bg-[#0a4243]/50 blur-[100px]" />
 
         <div className="container relative z-10">
-          <InView className="text-center max-w-3xl mx-auto mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-              Pick Your{" "}
-              <span className="bg-gradient-to-r from-[#fdd693] via-[#fff0d0] to-[#f3be6a] bg-clip-text text-transparent">
-                Ritual.
-              </span>
+          <InView className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 id="ritual-heading" className="text-3xl font-extrabold tracking-tight md:text-5xl">
+              Pick Your <GradientText>Ritual.</GradientText>
             </h2>
-            <p className="mt-4 text-slate-300 text-base sm:text-lg">
-              Tap any facility to step inside and discover its story, features,
-              and opening hours.
+            <p className="mt-4 text-base text-slate-300 sm:text-lg">
+              Select any facility to discover its story, features, and opening hours.
             </p>
           </InView>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3" aria-label="All facilities">
             {FACILITIES.map((facility, i) => (
-              <InView key={facility.slug} delay={i * 90} className="h-full">
-                <TiltCard>
-                  <Link
-                    href={`/facilities/${facility.slug}`}
-                    className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[#fdd693]/15 bg-[#062324]/90 backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#fdd693]/40 shadow-[inset_0_1px_0_0_rgba(253,214,147,0.08),0_18px_40px_-18px_rgba(0,0,0,0.7)]"
-                  >
-                    <div className="relative h-52 overflow-hidden">
-                      <Image
-                        src={facility.image}
-                        alt={facility.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#062324] via-[#062324]/15 to-transparent" />
-                      <span className="absolute top-4 left-4 rounded-full border border-[#fdd693]/30 bg-black/40 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-[#fdd693] backdrop-blur-md">
-                        {facility.tag}
+              <li key={facility.slug} className="h-full">
+                <InView delay={Math.min(i * 70, 350)} className="h-full">
+                  <TiltCard className="h-full">
+                    <Link
+                      href={`/facilities/${facility.slug}`}
+                      aria-label={`Explore ${facility.name}`}
+                      className="card card-hover group flex h-full flex-col"
+                    >
+                      <span className="relative block h-52 overflow-hidden">
+                        <Image
+                          src={facility.image}
+                          alt=""
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                          loading={i < 3 ? "eager" : "lazy"}
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                        <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#062324] via-[#062324]/15 to-transparent" />
+                        <span className="absolute left-4 top-4 rounded-full border border-[#fdd693]/30 bg-black/40 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-[#fdd693] backdrop-blur-md">
+                          {facility.tag}
+                        </span>
                       </span>
-                    </div>
 
-                    <div className="relative z-10 -mt-10 flex-1 p-7 pt-0">
-                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693] shadow-lg shadow-black/30 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
-                        <facility.icon className="h-6 w-6" />
+                      <span className="relative z-10 -mt-10 block flex-1 p-7 pt-0">
+                        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#fdd693]/25 bg-[#0a4243] text-[#fdd693] shadow-lg shadow-black/30 transition-transform duration-300 group-hover:scale-105">
+                          <facility.icon aria-hidden="true" className="h-6 w-6" />
+                        </span>
+                        <span className="mt-4 block text-xl font-extrabold tracking-tight text-white">
+                          {facility.name}
+                        </span>
+                        <span className="mt-2 block text-sm leading-relaxed text-slate-300">
+                          {facility.description}
+                        </span>
+                        <span className="mt-5 inline-flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#fdd693]">
+                          {COMMON_COPY.exploreSpace}
+                          <FaArrowRight aria-hidden="true" className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+                        </span>
                       </span>
-                      <h3 className="mt-4 text-xl font-extrabold tracking-tight text-white">
-                        {facility.name}
-                      </h3>
-                      <p className="mt-2 text-xs sm:text-sm text-slate-300/90 leading-relaxed">
-                        {facility.description}
-                      </p>
-                      <span className="mt-5 inline-flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.2em] font-bold text-[#fdd693] group-hover:text-[#fff0d0] transition-colors duration-300">
-                        Explore this space
-                        <FaArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1.5" />
-                      </span>
-                    </div>
-                  </Link>
-                </TiltCard>
-              </InView>
+                    </Link>
+                  </TiltCard>
+                </InView>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
     </div>

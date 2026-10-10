@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FaArrowRight, FaPause, FaPlay } from "react-icons/fa";
 
 const HERO_IMAGES = [
   {
@@ -11,7 +13,7 @@ const HERO_IMAGES = [
     heading: "Find Your",
     accent: "Sanctuary",
     description:
-      "A minimalist Nordic wellness retreat where expansive glass, natural serenity, and thoughtful design quiet the noise of everyday life.",
+      "A calm Nordic-inspired retreat where glass, light, and stillness quiet the noise of everyday life.",
   },
   {
     id: "meditation",
@@ -20,7 +22,7 @@ const HERO_IMAGES = [
     heading: "Stillness &",
     accent: "Steam",
     description:
-      "Guided meditation and Himalayan salt saunas melt away tension, restoring calm to body and mind one breath at a time.",
+      "Guided meditation and Himalayan salt saunas restore calm to body and mind, one breath at a time.",
   },
   {
     id: "hero",
@@ -29,7 +31,7 @@ const HERO_IMAGES = [
     heading: "Dive Into",
     accent: "Serenity",
     description:
-      "Float in our heated indoor pool and hydrotherapy zones, where warm water and quiet light wash the day away.",
+      "A heated indoor pool and hydrotherapy zone where warm water and quiet light wash the day away.",
   },
   {
     id: "outdoor",
@@ -38,7 +40,7 @@ const HERO_IMAGES = [
     heading: "Move With",
     accent: "Nature",
     description:
-      "Open-air yoga, strength training, and sunrise movement sessions reconnect your body with the rhythm of the valley.",
+      "Open-air yoga, strength training, and sunrise movement in rhythm with the valley.",
   },
   {
     id: "spa",
@@ -47,27 +49,25 @@ const HERO_IMAGES = [
     heading: "Restore &",
     accent: "Renew",
     description:
-      "Signature Himalayan spa rituals, deep-tissue therapies, and herbal treatments leave you renewed from head to toe.",
+      "Signature Himalayan rituals, deep-tissue therapy, and herbal treatments that leave you renewed.",
   },
 ];
 
-const NAV_LINKS = [
-  { label: "HOME", href: "#home", active: true },
-  { label: "FACILITIES", href: "#facilities" },
-  { label: "SERVICES", href: "#services" },
-  { label: "GALLERY", href: "#gallery" },
-  { label: "CONTACT", href: "#contact" },
-];
+const SLIDE_DURATION = 6500;
 
-const SLIDE_DURATION = 6000;
+const TRUST_POINTS = [
+  { value: "7", label: "Signature facilities" },
+  { value: "6–22", label: "Open daily, 6 AM – 10 PM" },
+  { value: "1:1", label: "Certified coaching" },
+];
 
 export function HeroSection() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const active = HERO_IMAGES[activeImageIndex];
 
-  // Respect prefers-reduced-motion
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mq.matches);
@@ -76,153 +76,194 @@ export function HeroSection() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Carousel autoplay — paused on hover/focus
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || reducedMotion) return;
     timerRef.current = setInterval(() => {
       setActiveImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
     }, SLIDE_DURATION);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused]);
+  }, [isPaused, reducedMotion]);
+
+  const goTo = useCallback((idx: number) => setActiveImageIndex(idx), []);
 
   return (
     <section
       id="home"
-      className="relative w-full min-h-screen overflow-hidden bg-[#0a4243] text-white"
+      aria-roledescription="carousel"
+      aria-label="Bhaktapur Wellness highlights"
+      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#0a4243] text-white"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
     >
-      {/* ================= FULL-SCREEN IMAGE CAROUSEL ================= */}
-      <div className="absolute inset-0 overflow-hidden">
-        {HERO_IMAGES.map((item, idx) => (
-          <div
-            key={item.id}
-            className={`absolute inset-0 transition-opacity ease-in-out ${
-              idx === activeImageIndex ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ transitionDuration: "1200ms" }}
-          >
+      {/* Backdrop carousel — opacity crossfade only (GPU-cheap) */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        {HERO_IMAGES.map((item, idx) => {
+          const isActive = idx === activeImageIndex;
+          return (
             <div
-              className={`absolute inset-0 ${
-                reducedMotion ? "" : "animate-[kenburns_6s_ease-out_forwards]"
+              key={item.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                isActive ? "opacity-100" : "opacity-0"
               }`}
-              style={{
-                animationPlayState:
-                  idx === activeImageIndex && !isPaused ? "running" : "paused",
-              }}
             >
-              <Image
-                src={item.src}
-                alt={item.title}
-                fill
-                priority={idx === 0}
-                sizes="100vw"
-                className="object-cover brightness-95 contrast-[1.02]"
-              />
+              <div
+                className={`absolute inset-0 ${reducedMotion ? "" : "animate-[heroKenburns_7s_ease-out_forwards]"}`}
+                style={{ animationPlayState: isActive && !isPaused ? "running" : "paused" }}
+              >
+                <Image
+                  src={item.src}
+                  alt=""
+                  fill
+                  priority={idx === 0}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
-            {/* Gradient vignette — keeps text legible across the whole frame */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a4243]/70 via-black/10 to-black/40 pointer-events-none" />
-          </div>
-        ))}
-
-        {/* Extra scrim behind the headline zone */}
-        <div className="absolute inset-x-0 top-1/3 bottom-0 bg-gradient-to-b from-black/0 via-black/35 to-black/20 pointer-events-none z-10" />
+          );
+        })}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#041a1b] via-[#041a1b]/45 to-black/45" />
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/55 to-transparent" />
       </div>
 
-      {/* top bar removed — global `Navbar` component renders the header */}
+      {/* Content */}
+      <div className="container relative z-20 flex flex-1 flex-col justify-end pb-10 pt-32 md:justify-center md:pb-16 md:pt-36">
+        <p className="mb-5 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/20 bg-black/35 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.28em] text-[#fdd693] backdrop-blur-md">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#fdd693]" />
+          Bhaktapur · Nepal
+        </p>
 
-      {/* hero-local menu removed — navigation lives in global `Navbar` component */}
-
-      {/* ================= OVERLAPPING HEADLINE (changes per slide) ================= */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 pointer-events-none z-20 px-6 sm:px-12 md:px-16">
         <h1
           key={activeImageIndex}
-          className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.5rem] xl:text-[9rem] font-bold text-white tracking-tighter leading-[1.05] pb-2 drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
+          className="max-w-5xl text-5xl font-bold leading-[1.02] tracking-tighter drop-shadow-[0_15px_30px_rgba(0,0,0,0.45)] sm:text-7xl lg:text-8xl"
         >
           <span className="block overflow-hidden">
-            <span className="block animate-[fadeSlideUp_0.9s_ease-out_forwards]">
-              {HERO_IMAGES[activeImageIndex].heading}
+            <span className="block animate-[heroRise_0.7s_ease-out_forwards]">
+              {active.heading}
             </span>
           </span>
-          <span className="block overflow-hidden">
+          <span className="block overflow-hidden pb-2">
             <span
-              className="block animate-[fadeSlideUp_0.9s_ease-out_forwards] text-[#fdd693]"
-              style={{ animationDelay: "180ms" }}
+              className="block animate-[heroRise_0.7s_ease-out_forwards] text-[#fdd693]"
+              style={{ animationDelay: "120ms" }}
             >
-              {HERO_IMAGES[activeImageIndex].accent}
-              <svg
-                className="inline-block w-10 h-10 sm:w-16 sm:h-16 md:w-20 md:h-20 ml-2 -mt-2 sm:-mt-4 text-[#fdd693] fill-current align-middle"
-                viewBox="0 0 100 100"
-                aria-hidden
-              >
-                {/* leaf motif — reinforces wellness/nature theme */}
-                <path d="M50 15 C30 15 18 35 18 55 C18 75 33 88 50 90 C55 60 60 40 78 25 C68 18 58 15 50 15 Z" />
-                <path
-                  d="M50 90 C48 70 46 50 45 35"
-                  stroke="#0a4243"
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
+              {active.accent}
             </span>
           </span>
         </h1>
-      </div>
 
-      {/* ================= BOTTOM: paragraph + dots + trust badge ================= */}
-      <div className="absolute bottom-0 inset-x-0 z-20 px-6 sm:px-12 md:px-16 pb-8 md:pb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <div className="max-w-lg">
+        <div aria-live="polite" className="mt-4 max-w-xl">
           <p
             key={`desc-${activeImageIndex}`}
-            className="text-white/90 text-sm sm:text-base leading-relaxed tracking-wide font-normal drop-shadow-sm animate-[fadeSlideUp_0.8s_ease-out_forwards]"
-            style={{ animationDelay: "300ms" }}
+            className="animate-[heroRise_0.6s_ease-out_forwards] text-sm leading-relaxed text-white/85 sm:text-base"
+            style={{ animationDelay: "200ms" }}
           >
-            {HERO_IMAGES[activeImageIndex].description}
+            {active.description}
           </p>
+        </div>
 
-          <div className="mt-6 flex items-center gap-2">
-            {HERO_IMAGES.map((_, idx) => (
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Link
+            href="#contact"
+            className="group inline-flex items-center gap-2 rounded-full bg-[#fdd693] px-7 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-[#0a4243] shadow-lg shadow-black/25 transition-all duration-300 hover:bg-[#fff0d0] sm:text-sm"
+          >
+            Book Your Visit
+            <FaArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <Link
+            href="#facilities"
+            className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/25 px-7 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-white backdrop-blur-md transition-all duration-300 hover:border-[#fdd693] hover:text-[#fdd693] sm:text-sm"
+          >
+            Explore Facilities
+          </Link>
+        </div>
+
+        <dl className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-white/15 pt-6">
+          {TRUST_POINTS.map((point) => (
+            <div key={point.label} className="flex flex-col">
+              <dd className="order-1 text-xl font-extrabold text-[#fdd693] sm:text-2xl">
+                {point.value}
+              </dd>
+              <dt className="order-2 mt-1 block text-[0.65rem] font-medium uppercase tracking-[0.18em] text-white/60">
+                {point.label}
+              </dt>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      {/* Carousel controls */}
+      <div className="absolute inset-x-0 bottom-0 z-20 hidden md:block">
+        <div className="container flex items-center justify-between gap-6 pb-8">
+          <div className="flex items-center gap-2" role="tablist" aria-label="Choose highlight">
+            {HERO_IMAGES.map((item, idx) => (
               <button
-                key={idx}
-                onClick={() => setActiveImageIndex(idx)}
-                aria-label={`Select slide ${idx + 1}`}
-                className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={idx === activeImageIndex}
+                aria-label={`Show ${item.title}`}
+                onClick={() => goTo(idx)}
+                className={`h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fdd693] ${
                   idx === activeImageIndex
-                    ? "w-8 bg-[#fdd693]"
-                    : "w-2 bg-[#fdd693]/40 hover:bg-[#fdd693]/70 hover:scale-125"
+                    ? "w-10 bg-[#fdd693]"
+                    : "w-2 bg-white/35 hover:bg-white/70"
                 }`}
               />
             ))}
           </div>
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="text-xs tabular-nums text-white/60">
+              {String(activeImageIndex + 1).padStart(2, "0")} / {String(HERO_IMAGES.length).padStart(2, "0")}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsPaused((p) => !p)}
+              aria-pressed={isPaused}
+              aria-label={isPaused ? "Play slideshow" : "Pause slideshow"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-md transition-colors hover:border-[#fdd693] hover:text-[#fdd693]"
+            >
+              {isPaused ? <FaPlay aria-hidden="true" className="h-3 w-3" /> : <FaPause aria-hidden="true" className="h-3 w-3" />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Local keyframes for the calm, once-only headline reveal + slow background zoom */}
+      {/* Mobile dots */}
+      <div className="container relative z-20 flex items-center gap-2 pb-8 md:hidden" role="tablist" aria-label="Choose highlight">
+        {HERO_IMAGES.map((item, idx) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={idx === activeImageIndex}
+            aria-label={`Show ${item.title}`}
+            onClick={() => goTo(idx)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              idx === activeImageIndex ? "w-8 bg-[#fdd693]" : "w-2 bg-white/35"
+            }`}
+          />
+        ))}
+      </div>
+
       <style jsx>{`
-        @keyframes fadeSlideUp {
-          from {
-            opacity: 0;
-            transform: translateY(18px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        @keyframes heroRise {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes kenburns {
-          from {
-            transform: scale(1);
-          }
-          to {
-            transform: scale(1.06);
-          }
+        @keyframes heroKenburns {
+          from { transform: scale(1); }
+          to { transform: scale(1.05); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-\\[fadeSlideUp_1s_ease-out_forwards\\],
-          .animate-\\[kenburns_6s_ease-out_forwards\\] {
+          .animate-\\[heroRise_0\\.7s_ease-out_forwards\\],
+          .animate-\\[heroRise_0\\.6s_ease-out_forwards\\],
+          .animate-\\[heroKenburns_7s_ease-out_forwards\\] {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;

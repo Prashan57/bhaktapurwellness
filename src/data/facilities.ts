@@ -1,4 +1,6 @@
 import type { IconType } from "react-icons";
+import type { DurationPlan } from "./membership";
+import { DANCE_PLANS, KICKBOXING_PLANS, LOCKER_PLANS } from "./membership";
 import {
   FaAward,
   FaBolt,
@@ -7,6 +9,7 @@ import {
   FaHandHoldingHeart,
   FaHeart,
   FaLeaf,
+  FaMusic,
   FaShieldAlt,
   FaSpa,
   FaSwimmer,
@@ -55,6 +58,12 @@ export type Facility = {
   features: FacilityFeature[];
   stats: FacilityStat[];
   hours: string;
+  pricing?: string;
+  pricingNote?: string;
+  slots?: string[];
+  plans?: DurationPlan[];
+  plansTitle?: string;
+  plansNote?: string;
 };
 
 // Single source of truth for every facility. Used by the navbar dropdown,
@@ -169,6 +178,9 @@ export const FACILITIES: Facility[] = [
       { value: "Daily", label: "Group Classes" },
     ],
     hours: "6:00 AM – 10:00 PM · Daily",
+    plans: LOCKER_PLANS,
+    plansTitle: "Locker Membership",
+    plansNote: "Your own secure locker at the gym — separate from gym access, billed by duration.",
   },
   {
     slug: "boxing",
@@ -224,6 +236,67 @@ export const FACILITIES: Facility[] = [
       { value: "All", label: "Skill Levels" },
     ],
     hours: "6:00 AM – 10:00 PM · Daily",
+    plans: KICKBOXING_PLANS,
+    plansTitle: "Kickboxing Class Plans",
+    plansNote: "Dedicated kickboxing coaching — priced separately from dance and gym plans.",
+  },
+  {
+    slug: "dance",
+    shortName: "Dance",
+    name: "Dance Studio",
+    tag: "Movement & Rhythm",
+    tagline: "Move to Your Rhythm",
+    description:
+      "High-energy dance classes for every level — build coordination, fitness, and confidence on the studio floor.",
+    longDescription:
+      "Our dance studio is built for joyful, disciplined movement. Guided by experienced instructors, classes blend rhythm, cardio conditioning, and technique into sessions that work for complete beginners and seasoned dancers alike. Pick a duration that fits your schedule and stay consistent — progress follows rhythm.",
+    icon: FaMusic,
+    image: "/images/gallery/zumba.jpg",
+    gallery: [
+      "/images/gallery/zumba.jpg",
+      "/images/gallery/qwe.jpg",
+      "/images/gallery/outdoor-activity.jpg",
+    ],
+    highlights: [
+      "Instructor-led dance classes",
+      "Beginner-friendly progressions",
+      "Cardio, coordination & flexibility",
+    ],
+    features: [
+      {
+        icon: FaMusic,
+        title: "Guided Classes",
+        description:
+          "Structured dance sessions led by experienced instructors.",
+      },
+      {
+        icon: FaUsers,
+        title: "All Levels",
+        description:
+          "Progressions that welcome beginners and challenge regulars.",
+      },
+      {
+        icon: FaHeart,
+        title: "Cardio & Mobility",
+        description:
+          "Build stamina, coordination, and flexibility through rhythm.",
+      },
+      {
+        icon: FaClock,
+        title: "Flexible Durations",
+        description:
+          "Monthly to yearly plans so you can commit at your own pace.",
+      },
+    ],
+    stats: [
+      { value: "All", label: "Skill Levels" },
+      { value: "Daily", label: "Group Classes" },
+      { value: "1-1", label: "Personal Guidance" },
+    ],
+    hours: "6:00 AM – 10:00 PM · Daily",
+    plans: DANCE_PLANS,
+    plansTitle: "Dance Class Plans",
+    plansNote: "Four simple durations — pick the rhythm that fits your schedule.",
   },
   {
     slug: "pool",
@@ -278,7 +351,10 @@ export const FACILITIES: Facility[] = [
       { value: "6", label: "Dedicated Lanes" },
       { value: "28°C", label: "Water Temp" },
     ],
-    hours: "6:00 AM – 10:00 PM · Daily",
+    hours: "7:00 AM – 11:00 AM · 1:00 PM – 4:00 PM · 5:00 PM – 9:00 PM",
+    pricing: "NRs. 1,000 per session",
+    pricingNote: "Sauna, Steam & Heated Pool — one session covers all three.",
+    slots: ["Morning: 7:00 AM – 11:00 AM", "Afternoon: 1:00 PM – 4:00 PM", "Evening: 5:00 PM – 9:00 PM"],
   },
   {
     slug: "spa",
@@ -333,7 +409,10 @@ export const FACILITIES: Facility[] = [
       { value: "8", label: "Signature Rituals" },
       { value: "1-1", label: "Private Bookings" },
     ],
-    hours: "8:00 AM – 9:00 PM · Daily",
+    hours: "7:00 AM – 11:00 AM · 1:00 PM – 4:00 PM · 5:00 PM – 9:00 PM",
+    pricing: "NRs. 1,000 per session",
+    pricingNote: "Sauna, Steam & Heated Pool — one session covers all three.",
+    slots: ["Morning: 7:00 AM – 11:00 AM", "Afternoon: 1:00 PM – 4:00 PM", "Evening: 5:00 PM – 9:00 PM"],
   },
   {
     slug: "jacuzzi",
@@ -388,7 +467,10 @@ export const FACILITIES: Facility[] = [
       { value: "12", label: "Massage Jets" },
       { value: "Daily", label: "Open All Week" },
     ],
-    hours: "6:00 AM – 10:00 PM · Daily",
+    hours: "7:00 AM – 11:00 AM · 1:00 PM – 4:00 PM · 5:00 PM – 9:00 PM",
+    pricing: "NRs. 1,000 per session",
+    pricingNote: "Sauna, Steam & Heated Pool — one session covers all three.",
+    slots: ["Morning: 7:00 AM – 11:00 AM", "Afternoon: 1:00 PM – 4:00 PM", "Evening: 5:00 PM – 9:00 PM"],
   },
   {
     slug: "beauty-salon",
